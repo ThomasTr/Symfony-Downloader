@@ -3,16 +3,15 @@
 namespace App\MessageHandler;
 
 use App\Message\Download;
+use Fresh\CentrifugoBundle\Service\CentrifugoInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Mercure\HubInterface;
-use Symfony\Component\Mercure\Update;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use YoutubeDl\Options;
 use YoutubeDl\YoutubeDl;
 
 class DownloadHandler implements MessageHandlerInterface
 {
-    public function __construct(public HubInterface $hub, public ParameterBagInterface $parameters)
+    public function __construct(public CentrifugoInterface $centrifugo, public ParameterBagInterface $parameters)
     {
     }
 
@@ -20,9 +19,8 @@ class DownloadHandler implements MessageHandlerInterface
     {
         try
         {
-
-            $yt  = new YoutubeDl();
-            $hub = $this->hub;
+            $yt         = new YoutubeDl();
+            $centrifugo = $this->centrifugo;
 
             $yt->onProgress(static function (
                 ?string $progressTarget,
@@ -31,10 +29,9 @@ class DownloadHandler implements MessageHandlerInterface
                 ?string $speed,
                 ?string $eta,
                 ?string $totalTime
-            ) use ($hub, $message) {
-                $hub->publish(new Update(
-                    'downloads',
-                    json_encode([
+            ) use ($centrifugo, $message) {
+                $centrifugo->publish(
+                    [
                         'id'           => hash('md5', $message->getUrl()),
                         'title'        => $progressTarget,
                         'percentage'   => str_replace('%', '', $percentage),
@@ -42,8 +39,9 @@ class DownloadHandler implements MessageHandlerInterface
                         'speed'        => $speed,
                         'eta'          => $eta,
                         'alertMessage' => null,
-                    ], JSON_THROW_ON_ERROR)
-                ));
+                    ],
+                    'downloads'
+                );
             });
 
             $collection = $yt->download(
@@ -75,22 +73,19 @@ class DownloadHandler implements MessageHandlerInterface
                     ];
                 }
 
-                $hub->publish(new Update(
-                    'downloads',
-                    json_encode($update, JSON_THROW_ON_ERROR)
-                ));
+                $centrifugo->publish($update, 'downloads');
             }
         }
         catch (\Error $error)
         {
-            $hub->publish(new Update(
-                'downloads',
-                json_encode([
+            $centrifugo->publish(
+                [
                     'id'           => hash('md5', $message->getUrl()),
                     'alertMessage' => $error->getMessage(),
-                    'alertClass'   => 'alert alert-danger'
-                ], JSON_THROW_ON_ERROR)
-            ));
+                    'alertClass'   => 'alert alert-danger',
+                ],
+                'downloads'
+            );
         }
     }
 }

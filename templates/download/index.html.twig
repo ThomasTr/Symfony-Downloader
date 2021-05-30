@@ -8,14 +8,14 @@
     <div class="col-12 col-lg-8 offset-lg-2 mt-5 pt-5"
             {{ stimulus_controller('download', {
                 'api-url': path('api_download'),
-                'mercure-Url': 'https://127.0.0.1:8000/.well-known/mercure?topic=downloads'
+                'token': token
             })}}
     >
 
         <form class="row row-cols-auto align-items-center">
             <div class="col-8">
-                <label for="urlInput" class="form-label d-none">Url</label>
-                <input type="url" class="form-control" id="urlInput" placeholder="https://example.com" value="https://www.youtube.com/watch?v=2a_cXbq7a0Q">
+                <label for="url" class="form-label d-none">Url</label>
+                <input type="url" class="form-control" id="url" placeholder="https://example.com" value="https://www.youtube.com/watch?v=2a_cXbq7a0Q">
             </div>
 
             <div class="col-4">
