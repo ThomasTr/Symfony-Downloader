@@ -1,5 +1,6 @@
 import { Controller } from 'stimulus';
-import { template } from "lodash"
+import { template } from 'lodash';
+import Centrifuge from 'centrifuge';
 
 export default class extends Controller {
 
@@ -9,21 +10,30 @@ export default class extends Controller {
 
     static values = {
         apiUrl: String,
-        mercureUrl: String
+        token: String,
     };
 
-    connect() {
-        var self = this;
-        const eventSource = new EventSource(this.mercureUrlValue);
-        eventSource.onmessage = function(message) {
-            const data = JSON.parse(message.data);
+    centrifuge = null;
 
-            self.addData(data);
-        }
+    connect() {
+        this.centrifuge = new Centrifuge('ws://localhost:8010/connection/websocket');
+
+        this.centrifuge.setToken(this.tokenValue);
+
+        this.centrifuge.subscribe("downloads", (function(ctx) {
+            this.addData(ctx.data);
+        }).bind(this));
+
+        this.centrifuge.connect();
+
+        setInterval( (function() {
+            this.downloads = this.downloads.filter(item => item.percentage !== 100);
+            this.renderResults();
+        }).bind(this), 10000);
     }
 
     disconnect() {
-        this.eventSource.close();
+        this.centrifuge.disconnect();
     }
 
     addData(data) {
@@ -51,9 +61,6 @@ export default class extends Controller {
             }
             else
             {
-                // const resourceTemplate = template(self.resourceTemplateTarget.innerHTML);
-                // self.listTarget.innerHTML += resourceTemplate(download);
-
                 var commentTemplate = document.getElementById("resource-template").innerHTML;
                 var templateFn = template(commentTemplate);
                 self.listTarget.innerHTML += templateFn(download);
