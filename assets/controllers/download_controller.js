@@ -62,9 +62,12 @@ export default class extends Controller {
     }
 
     async download() {
+        const url = document.getElementById('url');
         const params = new URLSearchParams({
-            url: encodeURIComponent(document.getElementById('urlInput').value)
+            url: encodeURIComponent(url.value)
         });
+
+        url.value = '';
 
         await fetch(`${this.apiUrlValue}?${params.toString()}`);
     }
