@@ -11,6 +11,7 @@ docker build -t sfdownloader .
 ```
 docker run -d --rm  -p 8080:80 -p 8010:8000 --name sfdownloader -v ~/Downloads/sf-test:/var/www/symfony-downloader/var/downloads sfdownloader:latest
 ```
+At the moment the ports are fixed to 8010 & 8080 as they are configured at different places
 
 ## Console
 ```
