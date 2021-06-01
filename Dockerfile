@@ -101,16 +101,16 @@ RUN buildDeps='apt-transport-https apt-utils autoconf curl gcc git libc-dev make
     && rm -rf /var/www/symfony-downloader/node_modules
 
 # Supervisor config
-COPY ./docker/supervisord/supervisord.conf /etc/supervisord.conf
+COPY docker/supervisord/supervisord.conf /etc/supervisord.conf
 
 # Override nginx's default config
-COPY ./docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 
 # Centrifugo config
-COPY ./docker/centrifugo/config.json /etc/centrifugo/config.json
+COPY docker/centrifugo/config.json /etc/centrifugo/config.json
 
 # Copy Scripts
-COPY ./docker/start.sh /start.sh
+COPY docker/start.sh /start.sh
 
 # SECRETS & ENV's
 RUN APP_SECRET=`openssl rand -hex 32` \
