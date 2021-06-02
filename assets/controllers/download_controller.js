@@ -10,6 +10,7 @@ export default class extends Controller {
 
     static values = {
         apiUrl: String,
+        websocketUrl: String,
         token: String,
     };
 
