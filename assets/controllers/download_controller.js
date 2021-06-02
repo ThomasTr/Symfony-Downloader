@@ -17,7 +17,7 @@ export default class extends Controller {
     centrifuge = null;
 
     connect() {
-        this.centrifuge = new Centrifuge('ws://localhost:8010/connection/websocket');
+        this.centrifuge = new Centrifuge(`ws://${this.websocketUrlValue}/connection/websocket`);
 
         this.centrifuge.setToken(this.tokenValue);
 
