@@ -9,9 +9,16 @@ docker build -t sfdownloader .
 
 ## Run
 ```
-docker run -d --rm  -p 8080:80 -p 8010:8000 --name sfdownloader -v ~/Downloads/sf-test:/var/www/symfony-downloader/var/downloads sfdownloader:latest
+docker run -d --rm  \
+           -p 8080:80 \
+           -p 8010:8000 \
+           -v ~/projects/symfony-downloader/docker/centrifugo:/etc/centrifugo/ \
+           -v ~/Downloads/sf-test:/var/www/symfony-downloader/var/downloads \
+           --env-file ~/projects/symfony-downloader/.env.local \
+           --name sfdownloader \
+           sfdownloader:latest
 ```
-At the moment the ports are fixed to 8010 & 8080 as they are configured at different places
+Adjust allowed origins in ```docker/centrifugo/config.json``` & WEBSOCKET_URL in env file
 
 ## Console
 ```

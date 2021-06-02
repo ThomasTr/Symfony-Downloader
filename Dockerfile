@@ -106,22 +106,8 @@ COPY docker/supervisord/supervisord.conf /etc/supervisord.conf
 # Override nginx's default config
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 
-# Centrifugo config
-COPY docker/centrifugo/config.json /etc/centrifugo/config.json
-
 # Copy Scripts
 COPY docker/start.sh /start.sh
-
-# SECRETS & ENV's
-RUN APP_SECRET=`openssl rand -hex 32` \
-    && sed -i -e "s/APP_SECRET=/APP_SECRET=$APP_SECRET/g" /var/www/symfony-downloader/.env \
-    && CENTRIFUGO_API_KEY=`openssl rand -hex 32` \
-    && sed -i -e "s/CENTRIFUGO_API_KEY=/CENTRIFUGO_API_KEY=$CENTRIFUGO_API_KEY/g" /var/www/symfony-downloader/.env \
-    && sed -i -e "s/\"api_key\": \"\",/\"api_key\": \"$CENTRIFUGO_API_KEY\",/g" /etc/centrifugo/config.json \
-    && CENTRIFUGO_SECRET=`openssl rand -hex 32` \
-    && sed -i -e "s/CENTRIFUGO_SECRET=/CENTRIFUGO_SECRET=$CENTRIFUGO_SECRET/g" /var/www/symfony-downloader/.env \
-    && sed -i -e "s/\"token_hmac_secret_key\": \"\",/\"token_hmac_secret_key\": \"$CENTRIFUGO_SECRET\",/g" /etc/centrifugo/config.json \
-    && sed -i -e "s/DOWNLOAD_PATH=/DOWNLOAD_PATH=\/var\/www\/symfony-downloader\/var\/downloads/g" /var/www/symfony-downloader/.env
 
 EXPOSE 80
 EXPOSE 8000
