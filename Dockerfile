@@ -51,6 +51,7 @@ RUN buildDeps='apt-transport-https apt-utils autoconf curl gcc git libc-dev make
             php8.0-xml \
             nodejs \
             yarn \
+            nano \
     && mkdir -p /run/php \
     && pip install wheel \
     && pip install supervisor supervisor-stdout \
@@ -81,6 +82,7 @@ RUN buildDeps='apt-transport-https apt-utils autoconf curl gcc git libc-dev make
     && wget -q https://github.com/centrifugal/centrifugo/releases/download/v${CENTRIFUGO_VERSION}/centrifugo_${CENTRIFUGO_VERSION}_linux_amd64.tar.gz -O- | tar xvz -C /tmp \
     && cp /tmp/centrifugo /usr/bin/centrifugo \
     && rm -rf /tmp/centrifugo \
+    && mkdir /etc/centrifugo \
     # Install yt-dl
     && curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl \
     && chmod a+rx /usr/local/bin/youtube-dl \
