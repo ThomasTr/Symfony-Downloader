@@ -44,7 +44,7 @@ WEBSOCKET_URL=localhost:8010
 docker run -d --rm  \
            -p 8080:80 \
            -p 8010:8000 \
-           -v ~/projects/symfony-downloader/docker/centrifugo:/etc/centrifugo/ \
+           -v ~/projects/symfony-downloader/docker/centrifugo:/etc/centrifugo \
            -v ~/Downloads/sf-test:/var/www/symfony-downloader/var/downloads \
            --env-file ~/projects/symfony-downloader/.env.docker \
            --name sfdownloader \
@@ -65,3 +65,10 @@ docker logs sfdownloader -f
 ## Use it
 Run it with http://127.0.0.1:8080/
 If you **not use localhost**, you must adjust cors in centrifugo config.json file.
+
+## Use local built docker image in synology nas
+Export file to archive
+```
+docker save sfdownloader | gzip > sfdownloader.tar.gz
+```
+Import archive on synology at docker/image 
