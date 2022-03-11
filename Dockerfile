@@ -1,18 +1,18 @@
-FROM debian:buster-slim
+FROM debian:bullseye-slim
 
 LABEL maintainer="Colin Wilson colin@wyveo.com"
 
 # Let the container know that there is no tty
 ENV DEBIAN_FRONTEND noninteractive
-ENV NGINX_VERSION 1.19.10-1~buster
-ENV php_conf /etc/php/8.0/fpm/php.ini
-ENV fpm_conf /etc/php/8.0/fpm/pool.d/www.conf
-ENV COMPOSER_VERSION 2.0.13
-ENV CENTRIFUGO_VERSION 2.8.5
+ENV NGINX_VERSION 1.21.6-1~bullseye
+ENV php_conf /etc/php/8.1/fpm/php.ini
+ENV fpm_conf /etc/php/8.1/fpm/pool.d/www.conf
+ENV COMPOSER_VERSION 2.2.7
+ENV CENTRIFUGO_VERSION 2.8.6
 
 # Install Basic Requirements
 RUN buildDeps='apt-transport-https apt-utils autoconf curl gcc git libc-dev make pkg-config wget zlib1g-dev' \
-    && deps='ca-certificates ffmpeg gnupg2 dirmngr lsb-release nano python-pip python-setuptools rtmpdump unzip zip' \
+    && deps='ca-certificates ffmpeg gnupg2 dirmngr lsb-release nano python3-pip python-setuptools rtmpdump unzip zip' \
     && set -x \
     && apt-get update \
     && apt-get install --no-install-recommends $buildDeps --no-install-suggests -q -y $deps \
@@ -29,31 +29,31 @@ RUN buildDeps='apt-transport-https apt-utils autoconf curl gcc git libc-dev make
 		  apt-key adv --batch --keyserver "$server" --keyserver-options timeout=10 --recv-keys "$NGINX_GPGKEY" && found=yes && break; \
 	  done; \
     test -z "$found" && echo >&2 "error: failed to fetch GPG key $NGINX_GPGKEY" && exit 1; \
-    echo "deb http://nginx.org/packages/mainline/debian/ buster nginx" >> /etc/apt/sources.list \
+    echo "deb http://nginx.org/packages/mainline/debian/ bullseye nginx" >> /etc/apt/sources.list \
     && wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg \
     && echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list \
-    && curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
+    && curl -fsSL https://deb.nodesource.com/setup_17.x | bash - \
     && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
     && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
     && apt-get update \
     && apt-get install --no-install-recommends --no-install-suggests -q -y \
             nginx=${NGINX_VERSION} \
-            php8.0-fpm \
-            php8.0-cli \
-            php8.0-bcmath \
-            php8.0-common \
-            php8.0-opcache \
-            php8.0-readline \
-            php8.0-mbstring \
-            php8.0-curl \
-            php8.0-zip \
-            php8.0-intl \
-            php8.0-xml \
+            php8.1-fpm \
+            php8.1-cli \
+            php8.1-bcmath \
+            php8.1-common \
+            php8.1-opcache \
+            php8.1-readline \
+            php8.1-mbstring \
+            php8.1-curl \
+            php8.1-zip \
+            php8.1-intl \
+            php8.1-xml \
             nodejs \
             yarn \
     && mkdir -p /run/php \
-    && pip install wheel \
-    && pip install supervisor supervisor-stdout \
+    && pip3 install wheel \
+    && pip3 install supervisor supervisor-stdout \
     && echo "#!/bin/sh\nexit 0" > /usr/sbin/policy-rc.d \
     && rm -rf /etc/nginx/conf.d/default.conf \
     && sed -i -e "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g" ${php_conf} \
@@ -61,8 +61,8 @@ RUN buildDeps='apt-transport-https apt-utils autoconf curl gcc git libc-dev make
     && sed -i -e "s/upload_max_filesize\s*=\s*2M/upload_max_filesize = 100M/g" ${php_conf} \
     && sed -i -e "s/post_max_size\s*=\s*8M/post_max_size = 100M/g" ${php_conf} \
     && sed -i -e "s/variables_order = \"GPCS\"/variables_order = \"EGPCS\"/g" ${php_conf} \
-    && sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /etc/php/8.0/fpm/php-fpm.conf \
-    && sed -i -e "s/error_log\s*= \/var\/log\/php8.0-fpm.log/error_log = \/proc\/self\/fd\/2/g" /etc/php/8.0/fpm/php-fpm.conf \
+    && sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" /etc/php/8.1/fpm/php-fpm.conf \
+    && sed -i -e "s/error_log\s*= \/var\/log\/php8.1-fpm.log/error_log = \/proc\/self\/fd\/2/g" /etc/php/8.1/fpm/php-fpm.conf \
     && sed -i -e "s/;catch_workers_output\s*=\s*yes/catch_workers_output = yes/g" ${fpm_conf} \
     && sed -i -e "s/pm.max_children = 5/pm.max_children = 4/g" ${fpm_conf} \
     && sed -i -e "s/pm.start_servers = 2/pm.start_servers = 3/g" ${fpm_conf} \
