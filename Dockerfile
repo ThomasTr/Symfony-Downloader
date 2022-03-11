@@ -53,7 +53,8 @@ RUN buildDeps='apt-transport-https apt-utils autoconf curl gcc git libc-dev make
             yarn \
     && mkdir -p /run/php \
     && pip3 install wheel \
-    && pip3 install supervisor supervisor-stdout \
+    && pip3 install supervisor \
+    && pip3 install git+https://github.com/coderanger/supervisor-stdout \
     && echo "#!/bin/sh\nexit 0" > /usr/sbin/policy-rc.d \
     && rm -rf /etc/nginx/conf.d/default.conf \
     && sed -i -e "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g" ${php_conf} \
