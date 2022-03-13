@@ -51,13 +51,13 @@
                 <div><strong><%= title %></strong></div>
                 <div>
                     <% if (typeof(size) !== "undefined" && size != 0) { %>
-                        <span class="me-2"><i class="bi bi-minecart-loaded"></i> <%= size %></span>
+                        <span class="me-2" style="display:inline-block;width:120px;"><i class="bi bi-minecart-loaded"></i> <%= size %></span>
+                    <% } %>
+                    <% if (typeof(eta) !== "undefined" && eta != 0) { %>
+                    <span class="me-2" style="display:inline-block;width:100px;"><i class="bi bi-stopwatch"></i> <%= eta %></span>
                     <% } %>
                     <% if (typeof(speed) !== "undefined" && speed != 0) { %>
                         <span class="me-2"><i class="bi bi-speedometer2"></i> <%= speed %></span>
-                    <% } %>
-                    <% if (typeof(eta) !== "undefined" && eta != 0) { %>
-                        <span class="me-2"><i class="bi bi-stopwatch"></i> <%= eta %></span>
                     <% } %>
                 </div>
                 <div class="progress">
