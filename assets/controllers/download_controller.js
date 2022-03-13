@@ -17,11 +17,22 @@ export default class extends Controller {
     centrifuge = null;
 
     connect() {
+        console.log('connect');
+
         this.centrifuge = new Centrifuge(`ws://${this.websocketUrlValue}/connection/websocket`);
+
+        this.centrifuge.on('connect', function(connectCtx){
+            console.log('connected', connectCtx)
+        });
+
+        this.centrifuge.on('disconnect', function(disconnectCtx){
+            console.log('disconnected', disconnectCtx)
+        });
 
         this.centrifuge.setToken(this.tokenValue);
 
         this.centrifuge.subscribe("downloads", (function(ctx) {
+            console.log('Received data', ctx);
             this.addData(ctx.data);
         }).bind(this));
 
@@ -35,6 +46,8 @@ export default class extends Controller {
 
     disconnect() {
         this.centrifuge.disconnect();
+
+        console.log('Disconnected from channel downloads');
     }
 
     addData(data) {
