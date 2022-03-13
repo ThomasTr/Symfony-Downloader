@@ -12,7 +12,7 @@ ENV CENTRIFUGO_VERSION 2.8.6
 
 # Install Basic Requirements
 RUN buildDeps='apt-transport-https apt-utils autoconf curl gcc git libc-dev make pkg-config wget zlib1g-dev' \
-    && deps='ca-certificates ffmpeg gnupg2 dirmngr lsb-release nano python3-pip python-setuptools rtmpdump unzip zip' \
+    && deps='ca-certificates ffmpeg gnupg2 dirmngr lsb-release python3-pip python-setuptools rtmpdump unzip zip' \
     && set -x \
     && apt-get update \
     && apt-get install --no-install-recommends $buildDeps --no-install-suggests -q -y $deps \
@@ -78,6 +78,7 @@ RUN buildDeps='apt-transport-https apt-utils autoconf curl gcc git libc-dev make
     && php -r "if (hash('SHA384', file_get_contents('/tmp/composer-setup.php')) !== trim(file_get_contents('/tmp/composer-setup.sig'))) { unlink('/tmp/composer-setup.php'); echo 'Invalid installer' . PHP_EOL; exit(1); }" \
     && php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --version=${COMPOSER_VERSION} \
     && rm -rf /tmp/composer-setup.php \
+    && rm -rf /tmp/composer-setup.sig \
     # Install Centrifugo
     && wget -q https://github.com/centrifugal/centrifugo/releases/download/v${CENTRIFUGO_VERSION}/centrifugo_${CENTRIFUGO_VERSION}_linux_amd64.tar.gz -O- | tar xvz -C /tmp \
     && cp /tmp/centrifugo /usr/bin/centrifugo \
@@ -99,6 +100,7 @@ RUN buildDeps='apt-transport-https apt-utils autoconf curl gcc git libc-dev make
     && apt-get purge -y --auto-remove $buildDeps nodejs yarn \
     && apt-get clean \
     && apt-get autoremove \
+    && rm -rf /usr/local/bin/composer \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/www/symfony-downloader/node_modules
 
