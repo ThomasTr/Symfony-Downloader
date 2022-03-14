@@ -46,6 +46,10 @@ class DownloadCommand extends Command
             echo "\n";
         });
 
+        $yt->debug(function ($type, $buffer) {
+            echo "[$type]: $buffer";
+        });
+
         $collection = $yt->download(
             Options::create()
                    ->downloadPath('~/Downloads/ytdl')
