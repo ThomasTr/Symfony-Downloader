@@ -53,8 +53,17 @@ class DownloadCommand extends Command
                    ->format('mp4')
         );
 
-
-        $io->success('Done!');
+        foreach ($collection->getVideos() as $video)
+        {
+            if ($video->getError() !== null)
+            {
+                $io->error("Error downloading video: {$video->getError()}.");
+            }
+            else
+            {
+                $io->success("Successfully downloaded {$video->getTitle()}");
+            }
+        }
 
         return Command::SUCCESS;
     }
