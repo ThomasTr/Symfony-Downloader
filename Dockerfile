@@ -12,7 +12,7 @@ ENV CENTRIFUGO_VERSION 2.8.6
 
 # Install Basic Requirements
 RUN buildDeps='apt-transport-https apt-utils autoconf curl gcc git libc-dev make pkg-config wget zlib1g-dev' \
-    && deps='ca-certificates ffmpeg gnupg2 dirmngr lsb-release nano python3-pip python-setuptools rtmpdump unzip zip' \
+    && deps='ca-certificates ffmpeg gnupg2 dirmngr lsb-release nano python3-pip python-is-python3 python-setuptools rtmpdump unzip zip' \
     && set -x \
     && apt-get update \
     && apt-get install --no-install-recommends $buildDeps --no-install-suggests -q -y $deps \
