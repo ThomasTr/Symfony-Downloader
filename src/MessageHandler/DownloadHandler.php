@@ -24,6 +24,8 @@ class DownloadHandler implements MessageHandlerInterface
             $centrifugo = $this->centrifugo;
             $logger     = $this->logger;
 
+            $logger->debug('start handling download message');
+
             $yt->onProgress(static function (
                 ?string $progressTarget,
                 ?string $percentage,
