@@ -66,9 +66,46 @@ docker logs sfdownloader -f
 Run it with http://127.0.0.1:8080/
 If you **not use localhost**, you must adjust cors in centrifugo config.json file.
 
-## Use local built docker image in synology nas
-Export file to archive
+## Use local built docker image in synology nas when same architecture
+Export file to archive when build with the same architecture
 ```
 docker save sfdownloader | gzip > sfdownloader.tar.gz
 ```
 Import archive on synology at docker/image 
+
+##Alternatively build docker image direct on synology
+Log in via ssh, chdir to `/volume1/docker` clone via
+```
+git clone git@github.com:ThomasTr/Symfony-Downloader.git sfdownloader
+```
+build:
+```
+cd sfdownloader
+sudo docker build --no-cache -t sfdownloader .
+```
+Image is then available in docker images frontend.
+
+##Settings for Synology NAS
+
+###Ports
+| local port | container port | type |
+|------------|----------------|------|
+| 8081       | 80             | tcp  |
+| 8010       | 8000           | tcp  |
+
+###Volumes
+|Folder|Mount Point|
+|------|-----------|
+|docker/sfdownloader/config/centrifugo|/etc/centrifugo|
+|docker/sfdownloader/downloads|/var/www/symfony-downloader/var/downloads|
+
+###Env Variables
+| key                     | value                                                     |
+|-------------------------|-----------------------------------------------------------|
+| APP_ENV                 | dev                                                       |
+| APP_SECRET              | random-secret-for-symfony                                 |
+| CENTRIFUGO_API_KEY      | same-key-as-in-centrifugo-config-in-api_key               |
+| CENTRIFUGO_API_ENDPOINT | http://synology-ip:8000/api                               |
+| CENTRIFUGO_SECRET       | same-key-as-in-centrifugo-config-in-token_hmac_secret_key |
+| DOWNLOAD_PATH           | /var/www/symfony-downloader/var/downloads                 |
+| WEBSOCKET_URL           | synology-ip:8010                                          |
