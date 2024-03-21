@@ -41,7 +41,7 @@ RUN buildDeps='apt-transport-https curl gpg git lsb-release wget' \
     && pip3 install supervisor --break-system-packages\
     && pip3 install git+https://github.com/coderanger/supervisor-stdout  --break-system-packages\
     && echo "#!/bin/sh\nexit 0" > /usr/sbin/policy-rc.d \
-    && rm -rf /etc/nginx/conf.d/default.conf \
+    && rm -rf /etc/nginx/sites-available/default \
     && sed -i -e "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g" ${php_conf} \
     && sed -i -e "s/memory_limit\s*=\s*.*/memory_limit = 256M/g" ${php_conf} \
     && sed -i -e "s/upload_max_filesize\s*=\s*2M/upload_max_filesize = 100M/g" ${php_conf} \
@@ -75,7 +75,7 @@ RUN buildDeps='apt-transport-https curl gpg git lsb-release wget' \
     # Install app
     && git clone https://github.com/ThomasTr/Symfony-Downloader.git /var/www/symfony-downloader \
     && cd /var/www/symfony-downloader \
-    && composer install --no-cache --prefer-dist --no-dev \
+    && composer install --no-cache --prefer-dist \
 #    && mkdir /var/www/symfony-downloader/var/downloads \
     && chown www-data:www-data -R /var/www/symfony-downloader \
     # Clean up
@@ -90,7 +90,7 @@ RUN buildDeps='apt-transport-https curl gpg git lsb-release wget' \
 COPY docker/supervisord/supervisord.conf /etc/supervisord.conf
 
 # Override nginx's default config
-COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY docker/nginx/default.conf /etc/nginx/sites-available/default
 
 # Copy Scripts
 COPY docker/start.sh /start.sh
