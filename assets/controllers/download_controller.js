@@ -1,6 +1,6 @@
-import { Controller } from 'stimulus';
-import { template } from 'lodash';
-import Centrifuge from 'centrifuge';
+import { Controller } from '@hotwired/stimulus';
+import template       from 'lodash/template';
+import { Centrifuge } from 'centrifuge';
 
 export default class extends Controller {
 
@@ -14,12 +14,15 @@ export default class extends Controller {
         token: String,
     };
 
-    centrifuge = null;
+    centrifuge= null;
+    sub       = null;
 
     connect() {
         console.log('connect');
 
-        this.centrifuge = new Centrifuge(`ws://${this.websocketUrlValue}/connection/websocket`);
+        this.centrifuge = new Centrifuge(`ws://${this.websocketUrlValue}/connection/websocket`, {
+            token: this.tokenValue
+        });
 
         this.centrifuge.on('connect', function(connectCtx){
             console.log('connected', connectCtx)
@@ -29,13 +32,16 @@ export default class extends Controller {
             console.log('disconnected', disconnectCtx)
         });
 
-        this.centrifuge.setToken(this.tokenValue);
+        this.sub = this.centrifuge.newSubscription('downloads');
 
-        this.centrifuge.subscribe("downloads", (function(ctx) {
-            console.log('Received data', ctx);
+        this.sub.on('publication', (function(ctx) {
             this.addData(ctx.data);
         }).bind(this));
 
+        // Trigger subscribe process.
+        this.sub.subscribe();
+
+        // Trigger actual connection establishement.
         this.centrifuge.connect();
 
         setInterval( (function() {

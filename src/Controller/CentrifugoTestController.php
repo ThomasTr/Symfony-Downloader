@@ -5,9 +5,9 @@ namespace App\Controller;
 use Fresh\CentrifugoBundle\Service\CentrifugoInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
-class CentrifugoTestController extends AbstractController
+final class CentrifugoTestController extends AbstractController
 {
     #[Route('/centrifugo-send', name: 'centrifugo_test')]
     public function __invoke(CentrifugoInterface $centrifugo): JsonResponse
@@ -16,11 +16,6 @@ class CentrifugoTestController extends AbstractController
             'alertMessage' => "Just a random error message",
         ], 'downloads');
 
-        return $this->json([
-            'channels' => $centrifugo->channels(),
-            'nodes' => $centrifugo->info()
-//            'presence' => $centrifugo->presenceStats('downloads'),
-//            'history' => $centrifugo->history('downloads'),
-        ]);
+        return $this->json(['ok']);
     }
 }

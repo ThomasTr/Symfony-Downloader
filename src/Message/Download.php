@@ -2,7 +2,7 @@
 
 namespace App\Message;
 
-class Download
+final class Download
 {
     public function __construct(public string $url)
     {

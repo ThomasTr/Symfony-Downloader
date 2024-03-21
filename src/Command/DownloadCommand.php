@@ -1,27 +1,31 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use YoutubeDl\Options;
 use YoutubeDl\YoutubeDl;
 
-class DownloadCommand extends Command
+#[AsCommand(
+    name: 'app:download',
+    description: 'yt-dl test downloader'
+)]
+final class DownloadCommand extends Command
 {
-    protected static $defaultName = 'download';
-    protected static $defaultDescription = 'yt-dl test downloader';
+    public function __construct(public readonly ParameterBagInterface $parameters, ?string $name = null)
+    {
+        parent::__construct($name);
+    }
 
     protected function configure(): void
     {
-        $this
-            ->setDescription(self::$defaultDescription)
-            ->addArgument('url', InputArgument::REQUIRED, 'The Url to download')
-        ;
+        $this->addArgument('url', InputArgument::REQUIRED, 'The Url to download');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -31,18 +35,25 @@ class DownloadCommand extends Command
 
         $yt = new YoutubeDl();
 
-        $yt->onProgress(static function (string $progressTarget, string $percentage, string $size, string $speed, string $eta, ?string $totalTime): void {
+        $yt->onProgress(static function (string $progressTarget, string $percentage, string $size, ?string $speed, ?string $eta, ?string $totalTime): void {
             echo "Download file: $progressTarget; Percentage: $percentage; Size: $size";
 
-            if ($speed) {
+
+            if (null !== $speed)
+            {
                 echo "; Speed: $speed";
             }
-            if ($eta) {
+
+            if (null !== $eta)
+            {
                 echo "; ETA: $eta";
             }
-            if ($totalTime !== null) {
+
+            if (null !== $totalTime)
+            {
                 echo "; Downloaded in: $totalTime";
             }
+
             echo "\n";
         });
 
@@ -52,7 +63,7 @@ class DownloadCommand extends Command
 
         $collection = $yt->download(
             Options::create()
-                   ->downloadPath('~/Downloads/ytdl')
+                   ->downloadPath($this->parameters->get('downloadPath'))
                    ->url($url)
                    ->format('mp4')
         );

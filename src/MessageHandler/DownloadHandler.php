@@ -6,26 +6,30 @@ use App\Message\Download;
 use Fresh\CentrifugoBundle\Service\CentrifugoInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use YoutubeDl\Options;
 use YoutubeDl\YoutubeDl;
 
-class DownloadHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class DownloadHandler
 {
-    public function __construct(public CentrifugoInterface $centrifugo, public LoggerInterface $logger, public ParameterBagInterface $parameters)
-    {
-    }
+    public function __construct(
+        public readonly CentrifugoInterface $centrifugo,
+        public readonly LoggerInterface $logger,
+        public readonly ParameterBagInterface $parameters
+    ) { }
 
     public function __invoke(Download $message)
     {
         try
         {
-            $yt         = new YoutubeDl();
             $centrifugo = $this->centrifugo;
-            $logger     = $this->logger;
 
+            $logger = $this->logger;
             $logger->debug('start handling download message');
 
+            $yt         = new YoutubeDl();
+            $yt->setBinPath($this->parameters->get('ytDlpBinPath'));
             $yt->onProgress(static function (
                 ?string $progressTarget,
                 ?string $percentage,
