@@ -41,6 +41,16 @@ DOWNLOAD_PATH=/var/www/symfony-downloader/var/downloads
 WEBSOCKET_URL=localhost:8010
 ```
 
+## Local dev
+
+### Install centrifugo
+Download centrifugo_x.x.x_darwin_arm64.tar.gz from https://github.com/centrifugal/centrifugo/releases. Place it in bin folder
+
+### Run centrifugo
+```
+bin/centrifugo --config=docker/centrifugo/config.json
+```
+
 ## Build
 ```
 docker build -t sfdownloader .
