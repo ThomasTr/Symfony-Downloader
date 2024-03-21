@@ -22,6 +22,11 @@
         "symfony/twig-bundle": "^7.0",
         "symfony/yaml": "^7.0"
     },
+    "require-dev": {
+        "symfony/maker-bundle": "^1.38",
+        "symfony/stopwatch": "^7.0",
+        "symfony/web-profiler-bundle": "^7.0"
+    },
     "config": {
         "optimize-autoloader": true,
         "preferred-install": {
@@ -68,10 +73,5 @@
         "symfony": {
             "allow-contrib": true
         }
-    },
-    "require-dev": {
-        "symfony/maker-bundle": "^1.38",
-        "symfony/stopwatch": "^7.0",
-        "symfony/web-profiler-bundle": "^7.0"
     }
 }
