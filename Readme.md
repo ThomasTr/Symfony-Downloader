@@ -2,25 +2,27 @@
 
 Personal playground for technologies like docker, websockets, stimulus
 
-## Build
-```
-docker build -t sfdownloader .
-```
-
 ## Config
 
-Place centrifugo config.json file elswere and reference path to this file in docker run, 
-adjust ```allowed_origins```if you use other ip/port than 127.0.0.1:8080 
+Generate centrifugo config in root folder:
+```
+bin/centrifugo genconfig
+```
+ 
+Adjust ```allowed_origins```if you use other ip/port than 127.0.0.1:8080 
 
 ```
 {
-    "v3_use_offset": true,
-    "anonymous": true,
+    "port": 8001
+    "allow_anonymous_connect_without_token": true,
     "token_hmac_secret_key": "<SAME RANDOM SECRET AS IN CENTRIFUGO_SECRET IN env>",
+    "admin": true,
+    "admin_password": "<WITH THIS KEY YOU CAN LOGIN IN ADMIN PANEL>",
+    "admin_secret": "71e55876-5178-4f54-963b-796fb49387ca",
     "api_key": "<SAME RANDOM SECRET AS IN CENTRIFUGO_API_KEY IN env>",
     "allowed_origins": [
         "http://127.0.0.1:8080"
-    ]
+    ],
 }
 ```
 
@@ -37,6 +39,11 @@ CENTRIFUGO_SECRET=<SAME RANDOM SECRET AS IN token_hmac_secret_key IN config.json
 
 DOWNLOAD_PATH=/var/www/symfony-downloader/var/downloads
 WEBSOCKET_URL=localhost:8010
+```
+
+## Build
+```
+docker build -t sfdownloader .
 ```
 
 ## Run
@@ -85,21 +92,21 @@ sudo docker build --no-cache -t sfdownloader .
 ```
 Image is then available in docker images frontend.
 
-##Settings for Synology NAS
+## Settings for Synology NAS
 
-###Ports
+### Ports
 | local port | container port | type |
 |------------|----------------|------|
 | 8081       | 80             | tcp  |
 | 8010       | 8000           | tcp  |
 
-###Volumes
+### Volumes
 |Folder|Mount Point|
 |------|-----------|
 |docker/sfdownloader/config/centrifugo|/etc/centrifugo|
 |docker/sfdownloader/downloads|/var/www/symfony-downloader/var/downloads|
 
-###Env Variables
+### Env Variables
 | key                     | value                                                     |
 |-------------------------|-----------------------------------------------------------|
 | APP_ENV                 | dev                                                       |
