@@ -1,56 +1,34 @@
-FROM debian:bullseye-slim
-
-LABEL maintainer="Colin Wilson colin@wyveo.com"
+FROM debian:bookworm-slim
 
 # Let the container know that there is no tty
 ENV DEBIAN_FRONTEND noninteractive
-ENV NGINX_VERSION 1.21.6-1~bullseye
-ENV php_conf /etc/php/8.1/fpm/php.ini
-ENV fpm_conf /etc/php/8.1/fpm/pool.d/www.conf
-ENV COMPOSER_VERSION 2.2.7
-ENV CENTRIFUGO_VERSION 2.8.6
+ENV php_conf /etc/php/8.2/fpm/php.ini
+ENV fpm_conf /etc/php/8.2/fpm/pool.d/www.conf
+ENV COMPOSER_VERSION 2.7.2
+ENV CENTRIFUGO_VERSION 5.3.0
 
 # Install Basic Requirements
-RUN buildDeps='apt-transport-https apt-utils autoconf curl gcc git libc-dev make pkg-config wget zlib1g-dev' \
+RUN buildDeps='apt-transport-https curl gpg git lsb-release' \
     && deps='ca-certificates ffmpeg gnupg2 dirmngr lsb-release nano python3-pip python-is-python3 python-setuptools rtmpdump unzip zip' \
     && set -x \
     && apt-get update \
     && apt-get install --no-install-recommends $buildDeps --no-install-suggests -q -y $deps \
-    && \
-    NGINX_GPGKEY=573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62; \
-	  found=''; \
-	  for server in \
-		  ha.pool.sks-keyservers.net \
-		  hkp://keyserver.ubuntu.com:80 \
-		  hkp://p80.pool.sks-keyservers.net:80 \
-		  pgp.mit.edu \
-	  ; do \
-		  echo "Fetching GPG key $NGINX_GPGKEY from $server"; \
-		  apt-key adv --batch --keyserver "$server" --keyserver-options timeout=10 --recv-keys "$NGINX_GPGKEY" && found=yes && break; \
-	  done; \
-    test -z "$found" && echo >&2 "error: failed to fetch GPG key $NGINX_GPGKEY" && exit 1; \
-    echo "deb http://nginx.org/packages/mainline/debian/ bullseye nginx" >> /etc/apt/sources.list \
-    && wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg \
-    && echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list \
-    && curl -fsSL https://deb.nodesource.com/setup_17.x | bash - \
-    && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
-    && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
+    && curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg \
+    && sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list' \
     && apt-get update \
     && apt-get install --no-install-recommends --no-install-suggests -q -y \
-            nginx=${NGINX_VERSION} \
-            php8.1-fpm \
-            php8.1-cli \
-            php8.1-bcmath \
-            php8.1-common \
-            php8.1-opcache \
-            php8.1-readline \
-            php8.1-mbstring \
-            php8.1-curl \
-            php8.1-zip \
-            php8.1-intl \
-            php8.1-xml \
-            nodejs \
-            yarn \
+            nginx \
+            php8.2-fpm \
+            php8.2-cli \
+            php8.2-bcmath \
+            php8.2-common \
+            php8.2-opcache \
+            php8.2-readline \
+            php8.2-mbstring \
+            php8.2-curl \
+            php8.2-zip \
+            php8.2-intl \
+            php8.2-xml \
     && mkdir -p /run/php \
     && pip3 install wheel \
     && pip3 install supervisor \
@@ -80,19 +58,20 @@ RUN buildDeps='apt-transport-https apt-utils autoconf curl gcc git libc-dev make
     && rm -rf /tmp/composer-setup.php \
     && rm -rf /tmp/composer-setup.sig \
     # Install Centrifugo
-    && wget -q https://github.com/centrifugal/centrifugo/releases/download/v${CENTRIFUGO_VERSION}/centrifugo_${CENTRIFUGO_VERSION}_linux_amd64.tar.gz -O- | tar xvz -C /tmp \
+    && curl https://github.com/centrifugal/centrifugo/releases/download/v${CENTRIFUGO_VERSION}/centrifugo_${CENTRIFUGO_VERSION}_linux_amd64.tar.gz -O- | tar xvz -C /tmp \
     && cp /tmp/centrifugo /usr/bin/centrifugo \
     && rm -rf /tmp/centrifugo \
     && mkdir /etc/centrifugo \
-    # Install yt-dl
-    && curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl \
-    && chmod a+rx /usr/local/bin/youtube-dl \
+    # Install yt-dlp
+    && curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
+    && chmod a+rx /usr/local/bin/yt-dlp
+
+    # copy sources
+    COPY --link . ./
+
     # Install app
-    && git clone https://github.com/ThomasTr/Symfony-Downloader.git /var/www/symfony-downloader \
-    && cd /var/www/symfony-downloader \
+    cd /var/www/symfony-downloader \
     && composer install \
-    && yarn install \
-    && yarn build \
     && mkdir /var/www/symfony-downloader/var/downloads \
     && chown nginx:nginx -R /var/www/symfony-downloader \
     # Clean up
@@ -101,8 +80,7 @@ RUN buildDeps='apt-transport-https apt-utils autoconf curl gcc git libc-dev make
     && apt-get clean \
     && apt-get autoremove \
     && rm -rf /usr/local/bin/composer \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /var/www/symfony-downloader/node_modules
+    && rm -rf /var/lib/apt/lists/*
 
 # Supervisor config
 COPY docker/supervisord/supervisord.conf /etc/supervisord.conf
