@@ -7,8 +7,8 @@ ENV fpm_conf /etc/php/8.2/fpm/php-fpm.conf
 ENV fpm_www_conf /etc/php/8.2/fpm/pool.d/www.conf
 ENV COMPOSER_VERSION 2.7.2
 ENV CENTRIFUGO_VERSION 5.3.0
-ENV CENTRIFUGO_ARCH linux_amd64
-#ENV CENTRIFUGO_ARCH linux_arm64
+#ENV CENTRIFUGO_ARCH linux_amd64
+ENV CENTRIFUGO_ARCH linux_arm64
 
 # https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
 ENV COMPOSER_ALLOW_SUPERUSER=1
@@ -55,7 +55,6 @@ RUN buildDeps='apt-transport-https curl gpg git lsb-release wget' \
     && sed -i -e "s/pm.min_spare_servers = 1/pm.min_spare_servers = 2/g" ${fpm_www_conf} \
     && sed -i -e "s/pm.max_spare_servers = 3/pm.max_spare_servers = 4/g" ${fpm_www_conf} \
     && sed -i -e "s/pm.max_requests = 500/pm.max_requests = 200/g" ${fpm_www_conf} \
-    && sed -i -e "s/www-data/nginx/g" ${fpm_www_conf} \
     && sed -i -e "s/^;clear_env = no$/clear_env = no/" ${fpm_www_conf} \
     # Install Composer
     && curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
