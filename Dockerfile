@@ -64,13 +64,10 @@ RUN buildDeps='apt-transport-https curl gpg git lsb-release' \
     && mkdir /etc/centrifugo \
     # Install yt-dlp
     && curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
-    && chmod a+rx /usr/local/bin/yt-dlp
-
-    # copy sources
-    COPY --link . ./
-
+    && chmod a+rx /usr/local/bin/yt-dlp \
     # Install app
-    cd /var/www/symfony-downloader \
+    && git clone https://github.com/ThomasTr/Symfony-Downloader.git /var/www/symfony-downloader \
+    && cd /var/www/symfony-downloader \
     && composer install \
     && mkdir /var/www/symfony-downloader/var/downloads \
     && chown nginx:nginx -R /var/www/symfony-downloader \
