@@ -23,11 +23,10 @@ final class DownloadHandler
     {
         try
         {
+            $this->logger->debug('start handling download message');
+
             $centrifugo = $this->centrifugo;
-
-            $logger = $this->logger;
-            $logger->debug('start handling download message');
-
+            $logger     = $this->logger;
             $yt         = new YoutubeDl();
             $yt->setBinPath($this->parameters->get('ytDlpBinPath'));
             $yt->onProgress(static function (
@@ -35,8 +34,7 @@ final class DownloadHandler
                 ?string $percentage,
                 ?string $size,
                 ?string $speed,
-                ?string $eta,
-                ?string $totalTime
+                ?string $eta
             ) use ($centrifugo, $logger, $message) {
                 $data = [
                     'id' => hash('md5', $message->getUrl()),
@@ -81,11 +79,11 @@ final class DownloadHandler
                     ];
                 }
 
-                $centrifugo->publish($update, 'downloads');
-                $logger->debug('centrifugo publish', $update);
+                $this->centrifugo->publish($update, 'downloads');
+                $this->logger->debug('centrifugo publish', $update);
             }
         }
-        catch (\Error $error)
+        catch (\Exception $error)
         {
             $data = [
                 'id' => hash('md5', $message->getUrl()),
@@ -93,8 +91,8 @@ final class DownloadHandler
                 'alertClass' => 'alert alert-danger',
             ];
 
-            $centrifugo->publish($data, 'downloads');
-            $logger->debug('centrifugo publish', $data);
+            $this->centrifugo->publish($data, 'downloads');
+            $this->logger->error('centrifugo publish', $data);
         }
     }
 }
