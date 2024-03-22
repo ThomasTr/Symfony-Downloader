@@ -14,8 +14,8 @@ ENV CENTRIFUGO_ARCH linux_arm64
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
 # Install Basic Requirements
-RUN buildDeps='apt-transport-https curl gpg git lsb-release wget' \
-    && deps='ca-certificates ffmpeg gnupg2 dirmngr lsb-release nano python3-full python3-brotli python3-certifi python3-mutagen python3-pip python3-pkg-resources python3-pycryptodome python3-requests python3-urllib3 python3-websockets aria2 rtmpdump unzip zip' \
+RUN buildDeps='apt-transport-https curl gpg git lsb-release' \
+    && deps='ca-certificates ffmpeg gnupg2 dirmngr lsb-release nano python3-full python3-brotli python3-certifi python3-mutagen python3-pip python3-pkg-resources python3-pycryptodome python3-requests python3-urllib3 python3-websockets aria2 rtmpdump unzip wget zip' \
     && set -x \
     && apt-get update \
     && apt-get install --no-install-recommends $buildDeps --no-install-suggests -q -y $deps \
@@ -48,7 +48,7 @@ RUN buildDeps='apt-transport-https curl gpg git lsb-release wget' \
     && sed -i -e "s/post_max_size\s*=\s*8M/post_max_size = 100M/g" ${php_conf} \
     && sed -i -e "s/variables_order = \"GPCS\"/variables_order = \"EGPCS\"/g" ${php_conf} \
     && sed -i -e "s/;daemonize\s*=\s*yes/daemonize = no/g" ${fpm_conf} \
-    && sed -i -e "s/error_log\s*= \/var\/log\/php8.1-fpm.log/error_log = \/proc\/self\/fd\/2/g" ${fpm_conf} \
+    && sed -i -e "s/error_log\s*= \/var\/log\/php8.2-fpm.log/error_log = \/proc\/self\/fd\/2/g" ${fpm_conf} \
     && sed -i -e "s/;catch_workers_output\s*=\s*yes/catch_workers_output = yes/g" ${fpm_www_conf} \
     && sed -i -e "s/pm.max_children = 5/pm.max_children = 4/g" ${fpm_www_conf} \
     && sed -i -e "s/pm.start_servers = 2/pm.start_servers = 3/g" ${fpm_www_conf} \
@@ -77,6 +77,7 @@ RUN buildDeps='apt-transport-https curl gpg git lsb-release wget' \
     && composer install --no-cache --prefer-dist \
 #    && mkdir /var/www/symfony-downloader/var/downloads \
     && chown www-data:www-data -R /var/www/symfony-downloader \
+    && bin/console asset-map:compile \
     # Clean up
     && rm -rf /tmp/pear \
     && apt-get purge -y --auto-remove $buildDeps \
@@ -95,6 +96,6 @@ COPY docker/nginx/default.conf /etc/nginx/sites-available/default
 COPY docker/start.sh /start.sh
 
 EXPOSE 80
-EXPOSE 8000
+EXPOSE 8001
 
 CMD ["/start.sh"]
