@@ -18,6 +18,8 @@ use YoutubeDl\YoutubeDl;
 )]
 final class DownloadCommand extends Command
 {
+    public const PROGRESS_PATTERN = '#\[download\]\s+(?<percentage>\d+(?:\.\d+)?%)\s+of\s+~?\s?(?<size>[~]?\d+(?:\.\d+)?(?:K|M|G)iB)(?:\s+at\s+(?<speed>(\d+(?:\.\d+)?(?:K|M|G)iB/s)|Unknown speed))?(?:\s+ETA\s+(?<eta>([\d:]{2,8}|Unknown ETA)))?(\s+in\s+(?<totalTime>[\d:]{2,8}))?#i';
+
     public function __construct(public readonly ParameterBagInterface $parameters, ?string $name = null)
     {
         parent::__construct($name);
@@ -32,33 +34,47 @@ final class DownloadCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
         $url = $input->getArgument('url');
+        $title = null;
 
         $yt = new YoutubeDl();
-
-        $yt->onProgress(static function (string $progressTarget, string $percentage, string $size, ?string $speed, ?string $eta, ?string $totalTime): void {
-            echo "Download file: $progressTarget; Percentage: $percentage; Size: $size";
-
-
-            if (null !== $speed)
+        $yt->setBinPath($this->parameters->get('ytDlpBinPath'));
+        $yt->debug(function ($type, $buffer) use ($url, &$title) {
+            if('out' === $type)
             {
-                echo "; Speed: $speed";
+                if (preg_match('/\[(download|ffmpeg|ExtractAudio)] Destination: (?<file>.+)/', $buffer, $match) === 1 ||
+                    preg_match('/\[download] (?<file>.+) has already been downloaded/', $buffer, $match) === 1)
+                {
+                    $title = basename($match['file']);
+                    echo "TITLE: $title";
+                }
+                elseif(preg_match_all(static::PROGRESS_PATTERN, $buffer, $matches, PREG_SET_ORDER) !== false)
+                {
+                    if (count($matches) > 0)
+                    {
+                        foreach ($matches as $progressMatch) {
+                            var_dump([
+                                'id' => hash('md5', $url),
+                                'title' => $title,
+                                'percentage' => str_replace('%', '', $progressMatch['percentage']),
+                                'size' => $progressMatch['size'],
+                                'speed' => $progressMatch['speed'] ?? null,
+                                'eta' => $progressMatch['eta'] ?? null,
+                                'totalTime' => $progressMatch['totalTime'] ?? null,
+                                'alertMessage' => null,
+                            ]);
+                        }
+                        var_dump($matches);
+                    }
+                }
+                else
+                {
+                    echo "Type: OOUUTT: $buffer";
+                }
             }
-
-            if (null !== $eta)
+            else
             {
-                echo "; ETA: $eta";
+                echo "Type: $type: $buffer";
             }
-
-            if (null !== $totalTime)
-            {
-                echo "; Downloaded in: $totalTime";
-            }
-
-            echo "\n";
-        });
-
-        $yt->debug(function ($type, $buffer) {
-            echo "[$type]: $buffer";
         });
 
         $collection = $yt->download(

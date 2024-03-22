@@ -23,31 +23,45 @@ final class DownloadHandler
     {
         try
         {
-            $this->logger->debug('start handling download message');
-
-            $centrifugo = $this->centrifugo;
-            $logger     = $this->logger;
-            $yt         = new YoutubeDl();
+            $yt = new YoutubeDl();
             $yt->setBinPath($this->parameters->get('ytDlpBinPath'));
-            $yt->onProgress(static function (
-                ?string $progressTarget,
-                ?string $percentage,
-                ?string $size,
-                ?string $speed,
-                ?string $eta
-            ) use ($centrifugo, $logger, $message) {
-                $data = [
-                    'id' => hash('md5', $message->getUrl()),
-                    'title' => $progressTarget,
-                    'percentage' => str_replace('%', '', $percentage),
-                    'size' => $size,
-                    'speed' => $speed,
-                    'eta' => $eta,
-                    'alertMessage' => null,
-                ];
-
-                $centrifugo->publish($data, 'downloads');
-                $logger->debug('centrifugo publish', $data);
+            $yt->debug(function ($type, $buffer) use ($message, &$title)
+            {
+                if('out' === $type)
+                {
+                    if (preg_match('/\[(download|ffmpeg|ExtractAudio)] Destination: (?<file>.+)/', $buffer, $match) === 1 ||
+                        preg_match('/\[download] (?<file>.+) has already been downloaded/', $buffer, $match) === 1)
+                    {
+                        $title = basename($match['file']);
+                    }
+                    elseif(preg_match_all('#\[download\]\s+(?<percentage>\d+(?:\.\d+)?%)\s+of\s+~?\s?(?<size>[~]?\d+(?:\.\d+)?(?:K|M|G)iB)(?:\s+at\s+(?<speed>(\d+(?:\.\d+)?(?:K|M|G)iB/s)|Unknown speed))?(?:\s+ETA\s+(?<eta>([\d:]{2,8}|Unknown ETA)))?(\s+in\s+(?<totalTime>[\d:]{2,8}))?#i', $buffer, $matches, PREG_SET_ORDER) !== false)
+                    {
+                        if (count($matches) > 0)
+                        {
+                            foreach ($matches as $progressMatch)
+                            {
+                                $this->publish([
+                                    'id' => hash('md5', $message->getUrl()),
+                                    'title' => $title,
+                                    'percentage' => str_replace('%', '', $progressMatch['percentage']),
+                                    'size' => $progressMatch['size'],
+                                    'speed' => $progressMatch['speed'] ?? null,
+                                    'eta' => $progressMatch['eta'] ?? null,
+                                    'totalTime' => $progressMatch['totalTime'] ?? null,
+                                    'alertMessage' => null,
+                                ]);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        $this->publish(['alertMessage' => "nomatch: $buffer"]);
+                    }
+                }
+                else
+                {
+                    $this->publish(['alertMessage' => "$type: $buffer"]);
+                }
             });
 
             $collection = $yt->download(
@@ -59,11 +73,9 @@ final class DownloadHandler
 
             foreach ($collection->getVideos() as $video)
             {
-                if ($video->getError() !== null)
+                if (null !== $video->getError())
                 {
-                    $update = [
-                        'alertMessage' => "Error downloading video: {$video->getError()}.",
-                    ];
+                    $update = ['alertMessage' => "Error downloading video: {$video->getError()}."];
                 }
                 else
                 {
@@ -94,5 +106,11 @@ final class DownloadHandler
             $this->centrifugo->publish($data, 'downloads');
             $this->logger->error('centrifugo publish', $data);
         }
+    }
+
+    private function publish(array $data): void
+    {
+        $this->centrifugo->publish($data, 'downloads');
+        $this->logger->debug('centrifugo publish', $data);
     }
 }
