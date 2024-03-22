@@ -53,7 +53,7 @@ bin/centrifugo --config=docker/centrifugo/config.json
 
 ## Build
 ```
-docker build -t sfdownloader .
+docker build --no-cache --progress plain -t sfdownloader .
 ```
 
 ## Run
