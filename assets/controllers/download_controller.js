@@ -78,6 +78,10 @@ export default class extends Controller {
             {
                 const alertTemplate = template(self.alertTemplateTarget.innerHTML);
                 self.listTarget.innerHTML += alertTemplate(download);
+
+                setInterval( (function() {
+                    self.listTarget.innerHTML = '';
+                }).bind(this), 10000);
             }
             else
             {
