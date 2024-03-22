@@ -46,9 +46,9 @@ WEBSOCKET_URL=localhost:8010
 ### Install centrifugo
 Download centrifugo_x.x.x_darwin_arm64.tar.gz from https://github.com/centrifugal/centrifugo/releases. Place it in bin folder
 
-### Run centrifugo
+### Run centrifugo local
 ```
-bin/centrifugo --config=docker/centrifugo/config.json
+bin/centrifugo --config=docker/centrifugo/config.local.json
 ```
 
 ## Build
