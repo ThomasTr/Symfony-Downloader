@@ -60,7 +60,7 @@ docker build -t sfdownloader .
 ```
 docker run -d --rm  \
            -p 8080:80 \
-           -p 8010:8000 \
+           -p 8001:8001 \
            -v ~/projects/symfony-downloader/docker/centrifugo:/etc/centrifugo \
            -v ~/Downloads/sf-test:/var/www/symfony-downloader/var/downloads \
            --env-file ~/projects/symfony-downloader/.env.docker \
@@ -108,7 +108,7 @@ Image is then available in docker images frontend.
 | local port | container port | type |
 |------------|----------------|------|
 | 8081       | 80             | tcp  |
-| 8010       | 8000           | tcp  |
+| 8001       | 8001           | tcp  |
 
 ### Volumes
 |Folder|Mount Point|
@@ -122,7 +122,7 @@ Image is then available in docker images frontend.
 | APP_ENV                 | dev                                                       |
 | APP_SECRET              | random-secret-for-symfony                                 |
 | CENTRIFUGO_API_KEY      | same-key-as-in-centrifugo-config-in-api_key               |
-| CENTRIFUGO_API_ENDPOINT | http://synology-ip:8000/api                               |
+| CENTRIFUGO_API_ENDPOINT | http://synology-ip:8001/api                               |
 | CENTRIFUGO_SECRET       | same-key-as-in-centrifugo-config-in-token_hmac_secret_key |
 | DOWNLOAD_PATH           | /var/www/symfony-downloader/var/downloads                 |
 | WEBSOCKET_URL           | synology-ip:8010                                          |
