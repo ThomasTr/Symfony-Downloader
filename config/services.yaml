@@ -6,7 +6,8 @@
 parameters:
   downloadPath: '%env(string:DOWNLOAD_PATH)%'
   websocketUrl: '%env(string:WEBSOCKET_URL)%'
-  ytDlpBinPath: '%env(string:YT_DLP_BIN_PATH)%'
+  ytDlpPath: '%env(string:YT_DLP_PATH)%'
+  ffmpegPath: '%env(string:FFMPEG_PATH)%'
 
 services:
   # default configuration for services in *this* file

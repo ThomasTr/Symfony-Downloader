@@ -32,14 +32,14 @@ final class DownloadCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
-        $url = $input->getArgument('url');
+        $io    = new SymfonyStyle($input, $output);
+        $url   = $input->getArgument('url');
         $title = null;
 
         $yt = new YoutubeDl();
-        $yt->setBinPath($this->parameters->get('ytDlpBinPath'));
+        $yt->setBinPath($this->parameters->get('ytDlpPath'));
         $yt->debug(function ($type, $buffer) use ($url, &$title) {
-            if('out' === $type)
+            if ('out' === $type)
             {
                 if (preg_match('/\[(download|ffmpeg|ExtractAudio)] Destination: (?<file>.+)/', $buffer, $match) === 1 ||
                     preg_match('/\[download] (?<file>.+) has already been downloaded/', $buffer, $match) === 1)
@@ -47,19 +47,20 @@ final class DownloadCommand extends Command
                     $title = basename($match['file']);
                     echo "TITLE: $title";
                 }
-                elseif(preg_match_all(static::PROGRESS_PATTERN, $buffer, $matches, PREG_SET_ORDER) !== false)
+                elseif (preg_match_all(static::PROGRESS_PATTERN, $buffer, $matches, PREG_SET_ORDER) !== false)
                 {
                     if (count($matches) > 0)
                     {
-                        foreach ($matches as $progressMatch) {
+                        foreach ($matches as $progressMatch)
+                        {
                             var_dump([
-                                'id' => hash('md5', $url),
-                                'title' => $title,
-                                'percentage' => str_replace('%', '', $progressMatch['percentage']),
-                                'size' => $progressMatch['size'],
-                                'speed' => $progressMatch['speed'] ?? null,
-                                'eta' => $progressMatch['eta'] ?? null,
-                                'totalTime' => $progressMatch['totalTime'] ?? null,
+                                'id'           => hash('md5', $url),
+                                'title'        => $title,
+                                'percentage'   => str_replace('%', '', $progressMatch['percentage']),
+                                'size'         => $progressMatch['size'],
+                                'speed'        => $progressMatch['speed'] ?? null,
+                                'eta'          => $progressMatch['eta'] ?? null,
+                                'totalTime'    => $progressMatch['totalTime'] ?? null,
                                 'alertMessage' => null,
                             ]);
                         }
@@ -80,6 +81,7 @@ final class DownloadCommand extends Command
         $collection = $yt->download(
             Options::create()
                    ->downloadPath($this->parameters->get('downloadPath'))
+                   ->ffmpegLocation($this->parameters->get('ffmpegPath'))
                    ->url($url)
                    ->format('mp4')
         );

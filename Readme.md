@@ -126,3 +126,5 @@ Image is then available in docker images frontend.
 | CENTRIFUGO_SECRET       | same-key-as-in-centrifugo-config-in-token_hmac_secret_key |
 | DOWNLOAD_PATH           | /var/www/symfony-downloader/var/downloads                 |
 | WEBSOCKET_URL           | synology-ip:8010                                          |
+| YT_DLP_PATH             | absolute path to yt-dlp binary: /usr/local/bin/yt-dlp     |
+| FFMPEG_PATH             | absolute path to ffmpg binary: /usr/bin/ffmpeg            |

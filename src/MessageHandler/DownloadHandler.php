@@ -14,40 +14,43 @@ use YoutubeDl\YoutubeDl;
 final class DownloadHandler
 {
     public function __construct(
-        public readonly CentrifugoInterface $centrifugo,
-        public readonly LoggerInterface $logger,
+        public readonly CentrifugoInterface   $centrifugo,
+        public readonly LoggerInterface       $logger,
         public readonly ParameterBagInterface $parameters
-    ) { }
+    )
+    {
+    }
 
     public function __invoke(Download $message)
     {
         try
         {
             $yt = new YoutubeDl();
-            $yt->setBinPath($this->parameters->get('ytDlpBinPath'));
-            $yt->debug(function ($type, $buffer) use ($message, &$title)
-            {
-                if('out' === $type)
+            $yt->setBinPath($this->parameters->get('ytDlpPath'));
+            $yt->debug(function ($type, $buffer) use ($message, &$title) {
+                if ('out' === $type)
                 {
-                    if (preg_match('/\[(download|ffmpeg|ExtractAudio)] Destination: (?<file>.+)/', $buffer, $match) === 1 ||
+                    if (preg_match('/\[(download|ffmpeg|ExtractAudio)] Destination: (?<file>.+)/', $buffer, $match) ===
+                        1 ||
                         preg_match('/\[download] (?<file>.+) has already been downloaded/', $buffer, $match) === 1)
                     {
                         $title = basename($match['file']);
                     }
-                    elseif(preg_match_all('#\[download\]\s+(?<percentage>\d+(?:\.\d+)?%)\s+of\s+~?\s?(?<size>[~]?\d+(?:\.\d+)?(?:K|M|G)iB)(?:\s+at\s+(?<speed>(\d+(?:\.\d+)?(?:K|M|G)iB/s)|Unknown speed))?(?:\s+ETA\s+(?<eta>([\d:]{2,8}|Unknown ETA)))?(\s+in\s+(?<totalTime>[\d:]{2,8}))?#i', $buffer, $matches, PREG_SET_ORDER) !== false)
+                    elseif (preg_match_all('#\[download\]\s+(?<percentage>\d+(?:\.\d+)?%)\s+of\s+~?\s?(?<size>[~]?\d+(?:\.\d+)?(?:K|M|G)iB)(?:\s+at\s+(?<speed>(\d+(?:\.\d+)?(?:K|M|G)iB/s)|Unknown speed))?(?:\s+ETA\s+(?<eta>([\d:]{2,8}|Unknown ETA)))?(\s+in\s+(?<totalTime>[\d:]{2,8}))?#i', $buffer, $matches, PREG_SET_ORDER) !==
+                        false)
                     {
                         if (count($matches) > 0)
                         {
                             foreach ($matches as $progressMatch)
                             {
                                 $this->publish([
-                                    'id' => hash('md5', $message->getUrl()),
-                                    'title' => $title,
-                                    'percentage' => str_replace('%', '', $progressMatch['percentage']),
-                                    'size' => $progressMatch['size'],
-                                    'speed' => $progressMatch['speed'] ?? null,
-                                    'eta' => $progressMatch['eta'] ?? null,
-                                    'totalTime' => $progressMatch['totalTime'] ?? null,
+                                    'id'           => hash('md5', $message->getUrl()),
+                                    'title'        => $title,
+                                    'percentage'   => str_replace('%', '', $progressMatch['percentage']),
+                                    'size'         => $progressMatch['size'],
+                                    'speed'        => $progressMatch['speed'] ?? null,
+                                    'eta'          => $progressMatch['eta'] ?? null,
+                                    'totalTime'    => $progressMatch['totalTime'] ?? null,
                                     'alertMessage' => null,
                                 ]);
                             }
@@ -67,6 +70,7 @@ final class DownloadHandler
             $collection = $yt->download(
                 Options::create()
                        ->downloadPath($this->parameters->get('downloadPath'))
+                       ->ffmpegLocation($this->parameters->get('ffmpegPath'))
                        ->url($message->getUrl())
                        ->format('mp4')
             );
@@ -98,9 +102,9 @@ final class DownloadHandler
         catch (\Exception $error)
         {
             $data = [
-                'id' => hash('md5', $message->getUrl()),
+                'id'           => hash('md5', $message->getUrl()),
                 'alertMessage' => $error->getMessage(),
-                'alertClass' => 'alert alert-danger',
+                'alertClass'   => 'alert alert-danger',
             ];
 
             $this->centrifugo->publish($data, 'downloads');
