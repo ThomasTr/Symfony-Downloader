@@ -4,7 +4,7 @@ import { Centrifuge } from 'centrifuge';
 
 export default class extends Controller {
 
-    static targets = ['list', 'resourceTemplate', 'alertTemplate'];
+    static targets = ['error', 'list', 'resourceTemplate', 'alertTemplate'];
 
     downloads = [];
 
@@ -47,6 +47,7 @@ export default class extends Controller {
         setInterval( (function() {
             this.downloads = this.downloads.filter(item => item.percentage !== 100);
             this.renderResults();
+            self.errorTarget.innerHTML = "";
         }).bind(this), 10000);
     }
 
@@ -77,11 +78,8 @@ export default class extends Controller {
             if(null !== download.alertMessage)
             {
                 const alertTemplate = template(self.alertTemplateTarget.innerHTML);
-                self.listTarget.innerHTML += alertTemplate(download);
 
-                setInterval( (function() {
-                    self.listTarget.innerHTML = '';
-                }).bind(this), 10000);
+                self.errorTarget.innerHTML = alertTemplate(download);
             }
             else
             {
