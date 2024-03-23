@@ -76,6 +76,8 @@ RUN buildDeps='apt-transport-https curl gpg git lsb-release' \
     && cd /var/www/symfony-downloader \
     && composer install --no-cache --prefer-dist \
     && mkdir /var/www/symfony-downloader/var/downloads \
+    && mkdir -p /var/www/.cache/yt-dlp \
+    && chown www-data:www-data /var/www/.cache/yt-dlp \
     && chown www-data:www-data -R /var/www/symfony-downloader \
     && bin/console asset-map:compile \
     # Clean up
