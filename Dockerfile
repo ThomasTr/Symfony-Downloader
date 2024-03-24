@@ -75,10 +75,9 @@ RUN buildDeps='apt-transport-https curl gpg git lsb-release' \
     && git clone https://github.com/ThomasTr/Symfony-Downloader.git /var/www/symfony-downloader \
     && cd /var/www/symfony-downloader \
     && composer install --no-cache --prefer-dist \
-    && mkdir /var/www/symfony-downloader/var/downloads \
+    && mkdir -p /var/www/symfony-downloader/var/downloads \
     && mkdir -p /var/www/.cache/yt-dlp \
-    && chown www-data:www-data /var/www/.cache/yt-dlp \
-    && chown www-data:www-data -R /var/www/symfony-downloader \
+    && chown www-data:www-data -R /var/www \
     && bin/console asset-map:compile \
     # Clean up
     && rm -rf /tmp/pear \
