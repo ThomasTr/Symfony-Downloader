@@ -2,6 +2,17 @@
 
 Personal playground for technologies like docker, websockets, stimulus
 
+Im Aktuellen bei Docker Hub veröffentlichten Container ist das yt-dlp binary zu alt.
+Es kommt der Fehler: unable to download video data: HTTP Error 403: Forbidden
+Abhilfe: Im container eine neue Version von yt-dlp herunterladen:
+
+```
+sudo docker exec -it sfdownloader /bin/bash
+cd /usr/local/bin
+wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp
+chmod +x yt-dlp
+```
+
 ## Config
 
 Generate centrifugo config in root folder:
