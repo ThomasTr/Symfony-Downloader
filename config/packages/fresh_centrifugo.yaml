@@ -1,0 +1,6 @@
+fresh_centrifugo:
+    api_endpoint: '%env(API_ENDPOINT_CENTRIFUGO)%'
+    api_key: '%env(CENTRIFUGO_HTTP_API_KEY)%'
+    secret: '%env(CENTRIFUGO_CLIENT_TOKEN_HMAC_SECRET_KEY)%'
+    jwt:
+        ttl: 86400 # 1 day

@@ -3,6 +3,7 @@
 /.env.local.php
 /.env.*.local
 /bin/centrifugo
+/config.json
 /config/secrets/prod/prod.decrypt.private.php
 /docker/centrifugo
 /public/bundles/

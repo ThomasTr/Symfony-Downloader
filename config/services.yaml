@@ -4,7 +4,8 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
-  downloadPath: '%env(string:DOWNLOAD_PATH)%'
+  downloadPath: '%env(default:default_downloadPath:file:DOWNLOAD_PATH)%'
+  default_downloadPath: '%kernel.project_dir%/var/downloads'
   websocketUrl: '%env(string:WEBSOCKET_URL)%'
   ytDlpPath: '%env(string:YT_DLP_PATH)%'
   ffmpegPath: '%env(string:FFMPEG_PATH)%'

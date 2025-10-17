@@ -1,0 +1,4 @@
+.env.local
+/var/cache
+/var/downloads/*
+/var/log
