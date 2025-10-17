@@ -7,7 +7,7 @@ use Fresh\CentrifugoBundle\Service\CentrifugoInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use YoutubeDl\Options;
+use App\YoutubeDl\Options;
 use YoutubeDl\YoutubeDl;
 
 #[AsMessageHandler]
@@ -67,13 +67,14 @@ final class DownloadHandler
                 }
             });
 
-            $collection = $yt->download(
-                Options::create()
-                       ->downloadPath($this->parameters->get('downloadPath'))
-                       ->ffmpegLocation($this->parameters->get('ffmpegPath'))
-                       ->url($message->getUrl())
-                       ->format('mp4')
-            );
+            $options = Options::create()
+                              ->downloadPath($this->parameters->get('downloadPath'))
+                              ->ffmpegLocation($this->parameters->get('ffmpegPath'))
+                              ->url($message->getUrl())
+                              ->forceGenericExtractor(true)
+                              ->presetAlias('mp4');
+
+            $collection = $yt->download($options);
 
             foreach ($collection->getVideos() as $video)
             {
