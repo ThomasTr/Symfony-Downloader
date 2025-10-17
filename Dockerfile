@@ -5,7 +5,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV php_conf=/etc/php/8.4/fpm/php.ini
 ENV fpm_conf=/etc/php/8.4/fpm/php-fpm.conf
 ENV fpm_www_conf=/etc/php/8.4/fpm/pool.d/www.conf
-ENV VERSION_COMPOSER=2.8.12
 ENV VERSION_CENTRIFUGO=6.3.1
 ENV ARCH_CENTRIFUGO linux_amd64
 #ENV ARCH_CENTRIFUGO=linux_arm64
@@ -57,12 +56,9 @@ RUN buildDeps='apt-transport-https curl gpg git lsb-release' \
     && sed -i -e "s/^;clear_env = no$/clear_env = no/" ${fpm_www_conf}
 
 # Install Composer
-RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
-    && curl -o /tmp/composer-setup.sig https://composer.github.io/installer.sig \
-    && php -r "if (hash('SHA384', file_get_contents('/tmp/composer-setup.php')) !== trim(file_get_contents('/tmp/composer-setup.sig'))) { unlink('/tmp/composer-setup.php'); echo 'Invalid installer' . PHP_EOL; exit(1); }" \
-    && php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --version=${COMPOSER_VERSION} \
-    && rm -rf /tmp/composer-setup.php \
-    && rm -rf /tmp/composer-setup.sig
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+    && php composer-setup.php --install-dir=/usr/local/bin --filename=composer \
+    && php -r "unlink('composer-setup.php');"
 
 #Install centrifugo
 RUN curl -L https://github.com/centrifugal/centrifugo/releases/download/v${VERSION_CENTRIFUGO}/centrifugo_${VERSION_CENTRIFUGO}_${ARCH_CENTRIFUGO}.tar.gz | tar xvz -C /tmp \
