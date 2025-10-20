@@ -7,16 +7,18 @@
         "php": ">=8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "fresh/centrifugo-bundle": "^6.3.0",
         "norkunas/youtube-dl-php": "^v2.12.0",
+        "runtime/frankenphp-symfony": "^0.2.0",
         "symfony/asset": "^v7.3.0",
         "symfony/asset-mapper": "^v7.3.4",
         "symfony/console": "^v7.3.4",
         "symfony/dotenv": "^v7.3.2",
         "symfony/flex": "^v2.8.2",
         "symfony/framework-bundle": "^v7.3.4",
+        "symfony/mercure-bundle": "^0.3.9",
         "symfony/messenger": "^v7.3.3",
         "symfony/monolog-bundle": "^v3.10.0",
+        "symfony/runtime": "^7.3",
         "symfony/serializer": "^v7.3.4",
         "symfony/stimulus-bundle": "^v2.30.0",
         "symfony/twig-bundle": "^v7.3.4",
@@ -71,7 +73,8 @@
     },
     "extra": {
         "symfony": {
-            "allow-contrib": true
+            "allow-contrib": true,
+            "docker": true
         }
     }
 }

@@ -1,9 +1,6 @@
 name: Publish Docker image
 
 on:
-    push:
-        branches:
-            - main
     release:
         types: [published]
 
@@ -30,10 +27,26 @@ jobs:
                     echo "VERSION=latest" >> $GITHUB_ENV
                   fi
 
-            - name: Build and push Docker image
-              uses: docker/build-push-action@v6
-              with:
-                  push: true
-                  tags: |
-                      thomastr/symfony-downloader:${{ env.VERSION }}
-                      thomastr/symfony-downloader:latest
+            - name: Build Docker image
+              run: |
+                  docker compose -f docker-compose.prod.yml build --pull --no-cache
+
+            - name: Tag and push Docker image
+              run: |
+                  IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/sfdownloader"
+                  IMAGE_ID=$(docker images -q "$(basename $GITHUB_REPOSITORY)_sfdownloader")
+                  
+                  echo "Built image ID: $IMAGE_ID"
+                  echo "Tagging image as ${IMAGE_NAME}:${VERSION}"
+
+                  docker tag "$IMAGE_ID" "${IMAGE_NAME}:${VERSION}"
+                  
+                  if [ "${VERSION}" != "latest" ]; then
+                    docker tag "$IMAGE_ID" "${IMAGE_NAME}:latest"
+                  fi
+                  
+                  # Push Tags
+                  docker push "${IMAGE_NAME}:${VERSION}"
+                  if [ "${VERSION}" != "latest" ]; then
+                    docker push "${IMAGE_NAME}:latest"
+                  fi

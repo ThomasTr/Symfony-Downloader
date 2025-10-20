@@ -3,9 +3,10 @@
 namespace App\MessageHandler;
 
 use App\Message\Download;
-use Fresh\CentrifugoBundle\Service\CentrifugoInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Mercure\HubInterface;
+use Symfony\Component\Mercure\Update;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use App\YoutubeDl\Options;
 use YoutubeDl\YoutubeDl;
@@ -14,7 +15,7 @@ use YoutubeDl\YoutubeDl;
 final class DownloadHandler
 {
     public function __construct(
-        public readonly CentrifugoInterface   $centrifugo,
+        public readonly HubInterface          $hub,
         public readonly LoggerInterface       $logger,
         public readonly ParameterBagInterface $parameters
     )
@@ -96,8 +97,7 @@ final class DownloadHandler
                     ];
                 }
 
-                $this->centrifugo->publish($update, 'downloads');
-                $this->logger->debug('centrifugo publish', $update);
+                $this->publish($update);
             }
         }
         catch (\Exception $error)
@@ -108,14 +108,18 @@ final class DownloadHandler
                 'alertClass'   => 'alert alert-danger',
             ];
 
-            $this->centrifugo->publish($data, 'downloads');
-            $this->logger->error('centrifugo publish', $data);
+            $this->publish($data);
         }
     }
 
     private function publish(array $data): void
     {
-        $this->centrifugo->publish($data, 'downloads');
-        $this->logger->debug('centrifugo publish', $data);
+        $update = new Update(
+            'downloads',
+            json_encode($data),
+        );
+
+        $this->hub->publish($update);
+        $this->logger->debug('published', $data);
     }
 }

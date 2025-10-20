@@ -1,6 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
 import template       from 'lodash/template';
-import { Centrifuge } from 'centrifuge';
 
 export default class extends Controller {
 
@@ -10,39 +9,19 @@ export default class extends Controller {
 
     static values = {
         apiUrl: String,
-        websocketUrl: String,
-        token: String,
+        mercureUrl: String,
     };
-
-    centrifuge= null;
-    sub       = null;
 
     connect() {
         console.log('connect');
 
-        this.centrifuge = new Centrifuge(`ws://${this.websocketUrlValue}/connection/websocket`, {
-            token: this.tokenValue
-        });
+        const eventSource = new EventSource(this.mercureUrlValue);
+        eventSource.onmessage = event => {
+            // Will be called every time an update is published by the server
+            console.log(JSON.parse(event.data));
 
-        this.centrifuge.on('connect', function(connectCtx){
-            console.log('connected', connectCtx)
-        });
-
-        this.centrifuge.on('disconnect', function(disconnectCtx){
-            console.log('disconnected', disconnectCtx)
-        });
-
-        this.sub = this.centrifuge.newSubscription('downloads');
-
-        this.sub.on('publication', (function(ctx) {
-            this.addData(ctx.data);
-        }).bind(this));
-
-        // Trigger subscribe process.
-        this.sub.subscribe();
-
-        // Trigger actual connection establishement.
-        this.centrifuge.connect();
+            this.addData(JSON.parse(event.data));
+        }
 
         setInterval( (function() {
             this.downloads = this.downloads.filter(item => item.percentage !== 100);
@@ -52,9 +31,6 @@ export default class extends Controller {
     }
 
     disconnect() {
-        this.centrifuge.disconnect();
-
-        console.log('Disconnected from channel downloads');
     }
 
     addData(data) {
