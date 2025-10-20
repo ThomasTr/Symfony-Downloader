@@ -1,5 +1,4 @@
 ---
-name: sfdownloader
 services:
   php:
     image: sfdownloader

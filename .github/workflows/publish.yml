@@ -33,8 +33,8 @@ jobs:
 
             - name: Tag and push Docker image
               run: |
-                  IMAGE_NAME="thomastr/sfdownloader"
-                  IMAGE_ID="sfdownloader_sfdownloader"
+                  IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/sfdownloader"
+                  IMAGE_ID=$(docker images -q "sfdownloader")
                   
                   echo "Built image ID: $IMAGE_ID"
                   echo "Tagging image as ${IMAGE_NAME}:${VERSION}"
