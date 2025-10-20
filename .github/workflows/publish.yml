@@ -33,7 +33,7 @@ jobs:
 
             - name: Tag and push Docker image
               run: |
-                  IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/sfdownloader"
+                  IMAGE_NAME="thomastr/sfdownloader"
                   IMAGE_ID=$(docker images -q "$(basename $GITHUB_REPOSITORY)_sfdownloader")
                   
                   echo "Built image ID: $IMAGE_ID"
