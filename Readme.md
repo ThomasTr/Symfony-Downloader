@@ -17,3 +17,8 @@ Adjust allowed origins in ```docker/centrifugo/config.json``` & WEBSOCKET_URL in
 ```
 docker compose logs -f
 ```
+
+## Bash
+```
+docker compose exec -it php bash
+```
