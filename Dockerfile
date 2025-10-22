@@ -119,5 +119,5 @@ RUN set -eux; \
 	composer dump-autoload --classmap-authoritative --no-dev; \
 	composer dump-env prod; \
 	composer run-script --no-dev post-install-cmd; \
-    bin/console asset-map:compile \
+    bin/console asset-map:compile; \
 	chmod +x bin/console; sync;
