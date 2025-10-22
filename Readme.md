@@ -15,10 +15,10 @@ Adjust allowed origins in ```docker/centrifugo/config.json``` & WEBSOCKET_URL in
 
 ## Logs
 ```
-docker compose logs -f
+sudo docker compose logs -f
 ```
 
 ## Bash
 ```
-docker compose exec -it php bash
+sudo docker compose exec -it sfdownloader bash
 ```
