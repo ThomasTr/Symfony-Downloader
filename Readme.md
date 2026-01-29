@@ -11,6 +11,7 @@ docker compose --progress plain build --pull --no-cache
 ```
 HTTP_PORT=8001 HTTPS_PORT=4443 HTTP3_PORT=4443 docker compose up --wait
 ```
+Access with: https://localhost:4443
 
 ## Logs
 ```
