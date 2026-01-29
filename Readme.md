@@ -20,7 +20,7 @@ sudo docker compose logs -f
 
 ## Bash
 ```
-sudo docker compose exec -it sfdownloader bash
+docker compose exec -it php bash
 ```
 
 ## Example Docker Compose Config for Synology Container Manager
