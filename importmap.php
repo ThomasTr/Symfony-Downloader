@@ -33,13 +33,13 @@ return [
         'type' => 'css',
     ],
     'centrifuge' => [
-        'version' => '5.4.0',
+        'version' => '5.5.3',
     ],
     'bootstrap-icons/font/bootstrap-icons.min.css' => [
         'version' => '1.13.1',
         'type' => 'css',
     ],
     'lodash/template' => [
-        'version' => '4.17.21',
+        'version' => '4.18.1',
     ],
 ];
