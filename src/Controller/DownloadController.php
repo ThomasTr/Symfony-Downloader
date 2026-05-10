@@ -21,7 +21,7 @@ final class DownloadController extends AbstractController
     #[Route('/api/download', name: 'api_download')]
     public function download(Request $request, MessageBusInterface $bus)
     {
-        $url = urldecode($request->query->get('url'));
+        $url = $request->query->get('url');
 
         $download = new Download($url);
         $bus->dispatch($download);
