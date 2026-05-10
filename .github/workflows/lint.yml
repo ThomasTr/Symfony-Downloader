@@ -1,0 +1,94 @@
+name: Lint
+
+on: [ push ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linters:
+    runs-on: ubuntu-24.04
+
+    env:
+      APP_ENV: test
+      APP_SECRET: $ecretf0rt3st
+      YT_DLP_PATH: /usr/bin/true
+      FFMPEG_PATH: /usr/bin/true
+      MERCURE_URL: http://localhost/.well-known/mercure
+      MERCURE_PUBLIC_URL: http://localhost/.well-known/mercure
+      MERCURE_JWT_SECRET: '!ChangeThisMercureHubJWTSecretKey!'
+
+    steps:
+      - name: 🛒 Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: 👮🏻‍ Security checker
+        uses: symfonycorp/security-checker-action@258311ef7ac571f1310780ef3d79fc5abef642b5 # v5
+
+      - name: 🛠️ Setup PHP extensions cache
+        id: extcache
+        uses: shivammathur/cache-extensions@256729b5fef535345e27904657f78048c0990f81 # 1.14.5
+        with:
+          key: ${{ runner.os }}-php-ext-${{ hashFiles('composer.lock') }}
+          php-version: '8.4'
+          extensions: ctype, iconv, mbstring
+
+      - name: 🚀 Cache PHP extensions
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ${{ steps.extcache.outputs.dir }}
+          key: ${{ steps.extcache.outputs.key }}
+          restore-keys: ${{ steps.extcache.outputs.key }}
+
+      - name: 🛠️ Setup PHP
+        uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f # 2.37.0
+        with:
+          php-version: '8.4'
+          ini-values: 'date.timezone=Europe/Berlin'
+          extensions: ctype, iconv, mbstring
+          tools: composer:v2
+          coverage: none
+
+      - name: 🔎 Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: 🚀 Cache dependencies installed with composer
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: 👨🏼‍🔧 Install Dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction --apcu-autoloader
+
+      - name: 🕵🏻 Lint Parameters and Services
+        run: bin/console lint:container --no-debug
+
+      - name: 🕵🏻 Lint twig templates
+        run: bin/console lint:twig templates --show-deprecations
+
+      - name: 🕵🏻 Lint YAML files
+        run: bin/console lint:yaml config --parse-tags
+
+      - name: 🧰 Lint Composer config
+        run: composer validate --strict
+
+      - name: 🕵🏻 Check if any dependencies are compromised
+        run: composer audit
+
+      - name: 🚀 Cache phpstan
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        id: phpstan-cache
+        with:
+          path: /tmp/phpstan
+          key: ${{ runner.os }}-phpstan-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-phpstan-
+
+      - name: 📈 Static analysis via phpstan
+        run: ./vendor/bin/phpstan analyse -c phpstan.neon.dist --no-progress

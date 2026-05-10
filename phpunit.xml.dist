@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- https://phpunit.readthedocs.io/en/latest/configuration.html -->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/13.1/phpunit.xsd"
+         backupGlobals="false"
+         colors="true"
+         bootstrap="tests/bootstrap.php"
+         cacheDirectory=".phpunit.cache"
+         displayDetailsOnTestsThatTriggerWarnings="true"
+         displayDetailsOnTestsThatTriggerErrors="true"
+         displayDetailsOnPhpunitDeprecations="true"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         displayDetailsOnTestsThatTriggerNotices="true"
+>
+    <php>
+        <ini name="display_errors" value="1"/>
+        <ini name="error_reporting" value="-1"/>
+        <ini name="date.timezone" value="Europe/Berlin"/>
+        <ini name="memory_limit" value="512M"/>
+        <server name="APP_ENV" value="test" force="true"/>
+        <server name="SHELL_VERBOSITY" value="-1"/>
+        <server name="KERNEL_CLASS" value="App\Kernel"/>
+        <server name="APP_SECRET" value="$ecretf0rt3st"/>
+        <server name="DEFAULT_URI" value="http://localhost"/>
+        <server name="YT_DLP_PATH" value="/usr/bin/true"/>
+        <server name="FFMPEG_PATH" value="/usr/bin/true"/>
+        <server name="MERCURE_URL" value="http://localhost/.well-known/mercure"/>
+        <server name="MERCURE_PUBLIC_URL" value="http://localhost/.well-known/mercure"/>
+        <server name="MERCURE_JWT_SECRET" value="!ChangeThisMercureHubJWTSecretKey!"/>
+    </php>
+    <testsuites>
+        <testsuite name="Project Test Suite">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+    </source>
+</phpunit>
