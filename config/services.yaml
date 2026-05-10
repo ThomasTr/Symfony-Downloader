@@ -8,6 +8,7 @@ parameters:
   default_downloadPath: '%kernel.project_dir%/downloads'
   ytDlpPath: '%env(string:YT_DLP_PATH)%'
   ffmpegPath: '%env(string:FFMPEG_PATH)%'
+  jobsDir: '%kernel.project_dir%/var/jobs'
 
 services:
     # default configuration for services in *this* file
@@ -19,6 +20,10 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
+
+    App\Service\JobStatusStore:
+        arguments:
+            $jobsDir: '%jobsDir%'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
