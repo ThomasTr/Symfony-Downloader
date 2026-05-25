@@ -33,7 +33,7 @@ jobs:
         uses: shivammathur/cache-extensions@256729b5fef535345e27904657f78048c0990f81 # 1.14.5
         with:
           key: ${{ runner.os }}-php-ext-${{ hashFiles('composer.lock') }}
-          php-version: '8.4'
+          php-version: '8.5'
           extensions: ctype, iconv, mbstring
 
       - name: 🚀 Cache PHP extensions
@@ -46,7 +46,7 @@ jobs:
       - name: 🛠️ Setup PHP
         uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc # 2.37.1
         with:
-          php-version: '8.4'
+          php-version: '8.5'
           ini-values: 'date.timezone=Europe/Berlin'
           extensions: ctype, iconv, mbstring
           tools: composer:v2
