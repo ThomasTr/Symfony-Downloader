@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: 🛒 Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: ⏱️ Set timezone
         run: |
@@ -33,21 +33,21 @@ jobs:
 
       - name: 🛠️ Setup PHP extensions cache
         id: extcache
-        uses: shivammathur/cache-extensions@256729b5fef535345e27904657f78048c0990f81 # 1.14.5
+        uses: shivammathur/cache-extensions@9b476298b44f2e4d4268dd103ff4c3e216314e27 # 1.14.6
         with:
           key: ${{ runner.os }}-php-ext-${{ hashFiles('composer.lock') }}
           php-version: '8.5'
           extensions: ctype, iconv, mbstring
 
       - name: 🚀 Cache PHP extensions
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ steps.extcache.outputs.dir }}
           key: ${{ steps.extcache.outputs.key }}
           restore-keys: ${{ steps.extcache.outputs.key }}
 
       - name: 🛠️ Setup PHP
-        uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc # 2.37.1
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: '8.5'
           ini-values: 'date.timezone=Europe/Berlin'
@@ -60,7 +60,7 @@ jobs:
           echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: 🚀 Cache dependencies installed with composer
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
