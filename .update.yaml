@@ -1,0 +1,26 @@
+# Steuerdatei fuer den update-dependencies-Skill.
+# Tags + Verify laufen ueber die Heuristik-Defaults (composer.json => composer/symfony,
+# verify => composer validate / phpstan / phpunit). Hier nur explizit, was abweicht:
+# die Followups nach einem erfolgreichen Update-Batch.
+
+tags: [composer, symfony]
+
+# Nach erfolgreichem Commit-Batch: Release -> Docker-Build (GitHub Actions) ->
+# Deploy-Compose bumpen -> Komodo-Deploy.
+#
+# Hinweis: publish.yml triggert auf `release: published`, NICHT auf Tag-Push.
+# Darum `gh release create` (legt Tag + Release in einem Schritt an und stoesst
+# den Docker-Build an, der thomastr/sfdownloader:<version> + :latest pusht).
+followups:
+  prompt:
+    # 1) Naechste Patch-Version (v.0.0.X) aus dem Remote ableiten und als
+    #    GitHub-Release veroeffentlichen -> triggert den Docker-Build.
+    - cd /Users/thomas/Projects/sfdownloader && LATEST=$(git ls-remote --tags --refs origin 'v.0.0.*' | sed 's#.*/v\.0\.0\.##' | sort -n | tail -1) && NEW="v.0.0.$((LATEST + 1))" && echo "Neue Version: $NEW" && gh release create "$NEW" --title "$NEW" --generate-notes
+
+    # 2) Im Docker-Repo das Image-Tag auf die soeben veroeffentlichte Version
+    #    anheben, committen und pushen. Version kommt aus dem sfdownloader-Remote,
+    #    damit compose.yaml exakt das gebaute Image referenziert.
+    - cd /Users/thomas/Projects/docker && git pull --ff-only --quiet && NEW="v.0.0.$(git ls-remote --tags --refs git@github.com:ThomasTr/Symfony-Downloader.git 'v.0.0.*' | sed 's#.*/v\.0\.0\.##' | sort -n | tail -1)" && echo "Setze Image auf $NEW" && sed -i '' "s#thomastr/sfdownloader:v\.0\.0\.[0-9]*#thomastr/sfdownloader:$NEW#" synology/sfdownloader/compose.yaml && git add synology/sfdownloader/compose.yaml && git commit -m "chore(sfdownloader): Image auf $NEW anheben" && git push
+
+  manual:
+    - "Komodo-UI: Stack 'sfdownloader' neu deployen (zieht das neue Image vom Docker Hub). Danach https://downloader.trautner.net pruefen."

@@ -23,6 +23,22 @@ sudo docker compose logs -f
 docker compose exec -it php bash
 ```
 
+## Release
+
+The Docker image is built by GitHub Actions (`.github/workflows/publish.yml`), which triggers on a **published GitHub Release** — not on a plain tag push. Publishing a release builds the image and pushes `thomastr/sfdownloader:<version>` and `thomastr/sfdownloader:latest` to Docker Hub.
+
+1. Create and publish the next release. This creates the `v.0.0.X` tag and triggers the Docker build:
+   ```
+   gh release create v.0.0.X --title v.0.0.X --generate-notes
+   ```
+2. Bump the image tag to the new version in the deploy repo (`synology/sfdownloader/compose.yaml`), then commit and push:
+   ```
+   image: thomastr/sfdownloader:v.0.0.X
+   ```
+3. Trigger a deploy in Komodo (redeploy the `sfdownloader` stack so it pulls the new image), then verify https://downloader.trautner.net.
+
+These steps are also automated as `followups` in `.update.yaml` and run by the `/update-dependencies` skill after a successful dependency update.
+
 ## Example Docker Compose Config for Synology Container Manager
 
 Access with: http://10.10.0.1:8085
