@@ -31,7 +31,7 @@ jobs:
 
       - name: 🛠️ Setup PHP extensions cache
         id: extcache
-        uses: shivammathur/cache-extensions@9b476298b44f2e4d4268dd103ff4c3e216314e27 # 1.14.6
+        uses: shivammathur/cache-extensions@de3c642a5fce0ef91581a1c9831e229f525196d6 # 1.15.1
         with:
           key: ${{ runner.os }}-php-ext-${{ hashFiles('composer.lock') }}
           php-version: '8.5'
