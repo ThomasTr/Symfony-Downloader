@@ -69,7 +69,7 @@ export default class extends Controller {
     async download() {
         const url = document.getElementById('url');
         const params = new URLSearchParams({
-            url: encodeURIComponent(url.value)
+            url: url.value
         });
 
         url.value = '';
