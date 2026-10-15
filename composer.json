@@ -9,33 +9,33 @@
         "php": ">=8.5",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "norkunas/youtube-dl-php": "^v2.13.0",
-        "symfony/asset": "^v8.0.4",
-        "symfony/asset-mapper": "^v8.0.4",
-        "symfony/console": "^v8.0.4",
-        "symfony/dotenv": "^v8.0.0",
-        "symfony/flex": "^v2.10.0",
-        "symfony/framework-bundle": "^v8.0.5",
-        "symfony/mercure-bundle": "^0.6",
-        "symfony/messenger": "^v8.0.4",
-        "symfony/monolog-bundle": "^v4.0.1",
-        "symfony/runtime": "^8.0",
-        "symfony/serializer": "^v8.0.5",
-        "symfony/stimulus-bundle": "^v3.0.0",
-        "symfony/twig-bundle": "^v8.0.4",
-        "symfony/validator": "^v8.0.4",
-        "symfony/yaml": "^v8.0.1"
+        "norkunas/youtube-dl-php": "^2.14.1",
+        "symfony/asset": "^8.1.0",
+        "symfony/asset-mapper": "^8.1.9",
+        "symfony/console": "^8.1.9",
+        "symfony/dotenv": "^8.1.6",
+        "symfony/flex": "^2.11.0",
+        "symfony/framework-bundle": "^8.1.9",
+        "symfony/mercure-bundle": "^0.6.1",
+        "symfony/messenger": "^8.1.9",
+        "symfony/monolog-bundle": "^4.1.0",
+        "symfony/runtime": "^8.1.9",
+        "symfony/serializer": "^8.1.9",
+        "symfony/stimulus-bundle": "^3.6.0",
+        "symfony/twig-bundle": "^8.1.9",
+        "symfony/validator": "^8.1.9",
+        "symfony/yaml": "^8.1.9"
     },
     "require-dev": {
-        "phpstan/phpstan": "^2.1",
-        "phpstan/phpstan-symfony": "^2.0",
-        "phpunit/phpunit": "^13.0",
-        "symfony/browser-kit": "^v8.0.0",
-        "symfony/css-selector": "^v8.0.0",
-        "symfony/maker-bundle": "^v1.65.1",
-        "symfony/phpunit-bridge": "^v8.0.0",
-        "symfony/stopwatch": "^v8.0.0",
-        "symfony/web-profiler-bundle": "^v8.0.4"
+        "phpstan/phpstan": "^2.3.1",
+        "phpstan/phpstan-symfony": "^2.1",
+        "phpunit/phpunit": "^13.4.2",
+        "symfony/browser-kit": "^8.1.9",
+        "symfony/css-selector": "^8.1.6",
+        "symfony/maker-bundle": "^1.68.0",
+        "symfony/phpunit-bridge": "^8.1.9",
+        "symfony/stopwatch": "^8.1.0",
+        "symfony/web-profiler-bundle": "^8.1.9"
     },
     "config": {
         "optimize-autoloader": true,
@@ -46,7 +46,8 @@
         "allow-plugins": {
             "symfony/flex": true,
             "symfony/runtime": true
-        }
+        },
+        "bump-after-update": true
     },
     "autoload": {
         "psr-4": {
