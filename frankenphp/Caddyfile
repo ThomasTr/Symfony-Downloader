@@ -30,10 +30,22 @@
 	encode zstd br gzip
 
 	mercure {
-		# Publisher JWT key
-		publisher_jwt {env.MERCURE_PUBLISHER_JWT_KEY} {env.MERCURE_PUBLISHER_JWT_ALG}
-		# Subscriber JWT key
-		subscriber_jwt {env.MERCURE_SUBSCRIBER_JWT_KEY} {env.MERCURE_SUBSCRIBER_JWT_ALG}
+		# Mercure 1.0 allows only one unnamed hub per configuration. A SERVER_NAME
+		# with several addresses (compose.yaml: "localhost, php:80") yields one
+		# server and thus one hub per address; named hubs share the Bolt transport.
+		name default
+		# Trusted issuer (Mercure 1.0): binds the iss claim of the tokens to its keys.
+		# Must match mercure.hubs.default.jwt.claims.iss in config/packages/mercure.yaml.
+		issuer {$MERCURE_TRUSTED_ISSUERS:https://localhost} {
+			# Publisher JWT key
+			publisher {
+				jwt {env.MERCURE_PUBLISHER_JWT_KEY} {env.MERCURE_PUBLISHER_JWT_ALG}
+			}
+			# Subscriber JWT key
+			subscriber {
+				jwt {env.MERCURE_SUBSCRIBER_JWT_KEY} {env.MERCURE_SUBSCRIBER_JWT_ALG}
+			}
+		}
 		# Allow anonymous subscribers (double-check that it's what you want)
 		anonymous
 		# Enable the subscription API (double-check that it's what you want)

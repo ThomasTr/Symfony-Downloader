@@ -6,3 +6,9 @@ mercure:
             jwt:
                 secret: '%env(MERCURE_JWT_SECRET)%'
                 publish: '*'
+                # Mercure 1.0 (RFC 9068): "iss" muss dem issuer-Block im
+                # Caddyfile entsprechen, darum dieselbe Env-Variable.
+                claims:
+                    iss: '%env(MERCURE_TRUSTED_ISSUERS)%'
+                    sub: sfdownloader
+                    client_id: sfdownloader
