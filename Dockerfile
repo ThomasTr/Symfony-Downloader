@@ -58,6 +58,11 @@ RUN set -eux; \
 RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
     && chmod a+rx /usr/local/bin/yt-dlp
 
+# JS runtime for yt-dlp's YouTube challenge solver (EJS scripts are bundled in the
+# zipimport binary). Without it YouTube aborts downloads mid-way with HTTP 403.
+# Minimum supported deno: 2.3.0 (https://github.com/yt-dlp/yt-dlp/wiki/EJS)
+COPY --from=denoland/deno:bin-2.9.7 /deno /usr/local/bin/deno
+
 # https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
