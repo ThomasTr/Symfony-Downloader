@@ -6,7 +6,7 @@
 tags: [composer, symfony]
 
 # Nach erfolgreichem Commit-Batch: Release -> Docker-Build (GitHub Actions) ->
-# Deploy-Compose bumpen -> Komodo-Deploy.
+# Deploy-Compose bumpen -> Komodo-Deploy (startet automatisch nach dem Push).
 #
 # Hinweis: publish.yml triggert auf `release: published`, NICHT auf Tag-Push.
 # Darum `gh release create` (legt Tag + Release in einem Schritt an und stoesst
@@ -23,4 +23,4 @@ followups:
     - cd /Users/thomas/Projects/docker && git pull --ff-only --quiet && NEW="v.0.0.$(git ls-remote --tags --refs git@github.com:ThomasTr/Symfony-Downloader.git 'v.0.0.*' | sed 's#.*/v\.0\.0\.##' | sort -n | tail -1)" && echo "Setze Image auf $NEW" && sed -i '' "s#thomastr/sfdownloader:v\.0\.0\.[0-9]*#thomastr/sfdownloader:$NEW#" synology/sfdownloader/compose.yaml && git add synology/sfdownloader/compose.yaml && git commit -m "chore(sfdownloader): Image auf $NEW anheben" && git push
 
   manual:
-    - "Komodo-UI: Stack 'sfdownloader' neu deployen (zieht das neue Image vom Docker Hub). Danach https://downloader.trautner.net pruefen."
+    - "Komodo deployt den Stack 'sfdownloader' nach dem Push im docker-Repo selbststaendig. In der Komodo-UI pruefen, dass v.0.0.X laeuft, danach https://downloader.trautner.net pruefen."
