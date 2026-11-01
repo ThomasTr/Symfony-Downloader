@@ -31,7 +31,7 @@ jobs:
 
       - name: 🛠️ Setup PHP extensions cache
         id: extcache
-        uses: shivammathur/cache-extensions@22e24453af1bf3851994136f122ce065ab828a74 # 1.15.2
+        uses: shivammathur/cache-extensions@c33688ce81fd884ddd70d51cadeb62b6fb974750 # 1.15.8
         with:
           key: ${{ runner.os }}-php-ext-${{ hashFiles('composer.lock') }}
           php-version: '8.5'
@@ -45,7 +45,7 @@ jobs:
           restore-keys: ${{ steps.extcache.outputs.key }}
 
       - name: 🛠️ Setup PHP
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: '8.5'
           ini-values: 'date.timezone=Europe/Berlin'
