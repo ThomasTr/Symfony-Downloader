@@ -20,7 +20,10 @@ followups:
     # 2) Im Docker-Repo das Image-Tag auf die soeben veroeffentlichte Version
     #    anheben, committen und pushen. Version kommt aus dem sfdownloader-Remote,
     #    damit compose.yaml exakt das gebaute Image referenziert.
-    - cd /Users/thomas/Projects/docker && git pull --ff-only --quiet && NEW="v.0.0.$(git ls-remote --tags --refs git@github.com:ThomasTr/Symfony-Downloader.git 'v.0.0.*' | sed 's#.*/v\.0\.0\.##' | sort -n | tail -1)" && echo "Setze Image auf $NEW" && sed -i '' "s#thomastr/sfdownloader:v\.0\.0\.[0-9]*#thomastr/sfdownloader:$NEW#" synology/sfdownloader/compose.yaml && git add synology/sfdownloader/compose.yaml && git commit -m "chore(sfdownloader): Image auf $NEW anheben" && git push
+    #    Vorher auf den publish.yml-Lauf dieses Tags warten (bis 2 Min., bis er
+    #    auftaucht) und nur bei Erfolg weitermachen — sonst zieht Komodo ein
+    #    Image, das es noch nicht gibt.
+    - cd /Users/thomas/Projects/docker && git pull --ff-only --quiet && NEW="v.0.0.$(git ls-remote --tags --refs git@github.com:ThomasTr/Symfony-Downloader.git 'v.0.0.*' | sed 's#.*/v\.0\.0\.##' | sort -n | tail -1)" && for i in $(seq 12); do RUN=$(gh run list --repo ThomasTr/Symfony-Downloader --workflow publish.yml --branch "$NEW" --limit 1 --json databaseId --jq '.[0].databaseId // empty'); [ -n "$RUN" ] && break; sleep 10; done && [ -n "$RUN" ] && echo "Warte auf Docker-Build $RUN fuer $NEW" && gh run watch "$RUN" --repo ThomasTr/Symfony-Downloader --exit-status --interval 20 > /dev/null && echo "Setze Image auf $NEW" && sed -i '' "s#thomastr/sfdownloader:v\.0\.0\.[0-9]*#thomastr/sfdownloader:$NEW#" synology/sfdownloader/compose.yaml && git add synology/sfdownloader/compose.yaml && git commit -m "chore(sfdownloader): Image auf $NEW anheben" && git push
 
   manual:
     - "Komodo deployt den Stack 'sfdownloader' nach dem Push im docker-Repo selbststaendig. In der Komodo-UI pruefen, dass v.0.0.X laeuft, danach https://downloader.trautner.net pruefen."
